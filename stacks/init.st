@@ -1,0 +1,6 @@
+:bind_c
+PUSH_CHAR c
+PUSH_STRING COMMAND_MODE
+BIND
+
+
