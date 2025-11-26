@@ -15,6 +15,7 @@ public class EditorView extends ViewComponent {
     private int curserRow = 0;
     private int curserCol = 0;
 
+    private final  int charHeight = 18;
     private final EditorActions editorActions;
 
     private final int lineHeight = 18;
@@ -49,6 +50,8 @@ public class EditorView extends ViewComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+
+
         int y = 0;
 
         int visibleLines = getHeight() / lineHeight;
@@ -56,9 +59,10 @@ public class EditorView extends ViewComponent {
         FontMetrics fm = g.getFontMetrics();  // aktuelle Font
         int charWidth = fm.charWidth('M');    // Breite eines Zeichens
 
-        int charHeight = 18;
+
+
         g.setColor(Color.DARK_GRAY);
-        g.fillRect(0,0, 800,600);
+        g.fillRect(0,0, getWidth(),getHeight());
         for (int i = 0; i < visibleLines; i++) {
             int lineIndex = topLine + i;
             if (lineIndex >= lines.size())
@@ -67,11 +71,15 @@ public class EditorView extends ViewComponent {
             String text = lines.get(lineIndex).toString();
 
             g.setColor(Color.BLACK);
-            g.fillRect(5, i*charHeight+5, charWidth*text.length(), charHeight);
+            g.fillRect(30, i*charHeight+5, charWidth*text.length(), charHeight);
             g.setColor(Color.CYAN);
-            g.drawRect(curserCol*charWidth+5, curserRow*charHeight+5,charWidth, charHeight );
+            g.drawRect(curserCol*charWidth+30, (curserRow-topLine)*charHeight+5,charWidth, charHeight );
             g.setColor(Color.PINK);
-            g.drawString(text, 5, y + lineHeight);
+
+
+            g.drawString(text, 30, y + lineHeight);
+            g.setColor(lineIndex==curserRow?Color.GREEN:Color.lightGray);
+            g.drawString((lineIndex+1)+"", 0, y + lineHeight);
             y += lineHeight;
         }
     }
@@ -90,12 +98,26 @@ public class EditorView extends ViewComponent {
         if (curserRow > 0) {
             curserRow-=amount;
         }
+
+        var diff = topLine-curserRow;
+        if(diff>0) {
+            topLine-=diff;
+        }
+
         repaint();
     }
 
     public void moveCurserDown(int amount){
         if (curserRow < lines.size() - 1) {
             curserRow+=amount;
+        }
+
+        var mayI =  (getHeight()/charHeight)+topLine;
+        var iAm = curserRow+1;
+        var diff = iAm-mayI;
+
+        if(diff>0) {
+            topLine += diff;
         }
 
         repaint();
@@ -222,7 +244,11 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void esc() {
+        scrollDown();
+    }
 
+    public List<String> getLines() {
+        return lines.stream().map(StringBuilder::toString).toList();
     }
 
 }

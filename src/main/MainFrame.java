@@ -1,6 +1,7 @@
 package main;
 
 import stackmachine.Inter;
+import stackmachine.StackUtils;
 import stackmachine.Stackmachine;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ import java.util.List;
 public class MainFrame extends JFrame implements EditorActions{
     private final Map<String,  EditorView> views = new HashMap<>();
     private EditorView current;
+    private String currentFilename = "NEW_FILE";
 
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
@@ -31,6 +33,7 @@ public class MainFrame extends JFrame implements EditorActions{
             newView = views.get(path);
         }else{
             try {
+
                 newView = new EditorView(Utils.loadResourceFile(path), this);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -38,6 +41,8 @@ public class MainFrame extends JFrame implements EditorActions{
             }
             views.put(path, newView);
         }
+
+        currentFilename = path;
 
         if(current != null) {
             remove(current);
@@ -125,6 +130,19 @@ public class MainFrame extends JFrame implements EditorActions{
     @Override
     public void bind(char key, Runnable command) {
         this.customCommandMode.bind(key, command);
+    }
+
+    @Override
+    public void saveBuffer(String file) {
+        if(file!=null && !views.containsKey(file)) {
+            views.put(file, current);
+            currentFilename = file;
+        }
+        try {
+            StackUtils.writeLinesToFile(current.getLines(), currentFilename);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

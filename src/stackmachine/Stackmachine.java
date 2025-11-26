@@ -41,6 +41,18 @@ public class Stackmachine implements Inter{
             this.editorActions.loadFile(filename);
         } );
 
+        runnableMap.put("SAVE_BUFFER", ()-> {
+            String filename = null;
+            if(!this.stack.isEmpty()){
+                filename = this.stack.pop().toString();
+            }
+            this.editorActions.saveBuffer(filename);
+        });
+
+        runnableMap.put("EXIT", ()->{
+            System.exit(0);
+        } );
+
 
         for(KeyBinding keyBinding: keyBindings) {
             this.editorActions.bind(keyBinding.key(), runnableMap.get(keyBinding.method()));

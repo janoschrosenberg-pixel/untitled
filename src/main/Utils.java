@@ -1,5 +1,7 @@
 package main;
 
+import stackmachine.StackUtils;
+
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -12,21 +14,7 @@ public class Utils {
     public static List<StringBuilder> loadResourceFile(String resourceName) throws IOException {
         List<StringBuilder> lines = new ArrayList<>();
 
-        // Versuche Datei aus dem Resource-Ordner zu öffnen
-        try (InputStream in = Utils.class.getClassLoader().getResourceAsStream(resourceName)) {
-            if (in == null) {
-                throw new FileNotFoundException("Resource not found: " + resourceName);
-            }
-
-            // BufferedReader ist extrem performant bei großen Dateien
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Wandelt jede Zeile in einen mutable StringBuilder um
-                    lines.add(new StringBuilder(line));
-                }
-            }
-        }
+        StackUtils.readLines(resourceName, str -> lines.add(new StringBuilder(str)));
 
         return lines;
     }

@@ -19,4 +19,6 @@ public interface EditorActions {
     void scrollDown(int amount);
 
     void bind(char key, Runnable command);
+
+    void saveBuffer(String file);
 }

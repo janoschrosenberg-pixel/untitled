@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -104,7 +105,7 @@ public class StackUtils {
         return s.matches("^[A-Za-z0-9]:.+$");
     }
 
-    public static void writeLinesToFile(Set<String> lines, String filePath) throws IOException {
+    public static void writeLinesToFile(Collection<String> lines, String filePath) throws IOException {
         Path path = Path.of(filePath);
 
         try (BufferedWriter writer = Files.newBufferedWriter(
