@@ -1,5 +1,7 @@
 package main;
 
+import tokenizer.Tokenizer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import java.util.List;
 
 public class EditorView extends ViewComponent {
 
-    private final List<StringBuilder> lines;
+    private final List<Line> lines;
     private int topLine = 0;
 
     private int curserRow = 0;
@@ -33,12 +35,12 @@ public class EditorView extends ViewComponent {
         }
     }
 
-    public EditorView(List<StringBuilder> lines, EditorActions editorActions) {
+    public EditorView(List<Line> lines, EditorActions editorActions) {
 
 
         if(lines == null) {
             this.lines = new ArrayList<>();
-            this.lines.add(new StringBuilder(100));
+            this.lines.add(new Line());
         }else{
             this.lines = lines;
         }
@@ -68,16 +70,15 @@ public class EditorView extends ViewComponent {
             if (lineIndex >= lines.size())
                 break;
 
-            String text = lines.get(lineIndex).toString();
+            Line line = lines.get(lineIndex);
 
-            g.setColor(Color.BLACK);
-            g.fillRect(30, i*charHeight+5, charWidth*text.length(), charHeight);
+
             g.setColor(Color.CYAN);
             g.drawRect(curserCol*charWidth+30, (curserRow-topLine)*charHeight+5,charWidth, charHeight );
-            g.setColor(Color.PINK);
 
+            g.setColor(lineIndex==curserRow?Color.PINK:Color.WHITE);
 
-            g.drawString(text, 30, y + lineHeight);
+            line.drawText(g, 30, y + lineHeight);
             g.setColor(lineIndex==curserRow?Color.GREEN:Color.lightGray);
             g.drawString((lineIndex+1)+"", 0, y + lineHeight);
             y += lineHeight;
@@ -98,13 +99,15 @@ public class EditorView extends ViewComponent {
         if (curserRow > 0) {
             curserRow-=amount;
         }
+        revalidateScrollUp();
+        repaint();
+    }
 
+    private void revalidateScrollUp(){
         var diff = topLine-curserRow;
         if(diff>0) {
             topLine-=diff;
         }
-
-        repaint();
     }
 
     public void moveCurserDown(int amount){
@@ -157,7 +160,7 @@ public class EditorView extends ViewComponent {
     @Override
     public void appendChar(char sign) {
         if(lines.size()-1 < curserRow){
-            lines.add(curserRow, new StringBuilder());
+            lines.add(curserRow, new Line());
         }
         var line = lines.get(curserRow);
         while (line.length() < curserCol) {
@@ -176,23 +179,38 @@ public class EditorView extends ViewComponent {
         }
 
         if(lines.size()-1 < curserRow){
-            lines.add(curserRow, new StringBuilder());
+            lines.add(curserRow, new Line());
         }
 
         if(shouldMerge()){
             mergeLines();
+            revalidateScrollUp();
+            repaint();
+            return;
+        }
+        var currentLine = lines.get(curserRow);
+
+        if(curserCol == 0) {
+            if (currentLine.isEmpty()) {
+                lines.remove(curserRow);
+            }else{
+                var aboveLine = lines.get(curserRow-1);
+                if(aboveLine.isEmpty()) {
+                    lines.remove(aboveLine);
+                    curserRow -= 1;
+                }
+            }
+            revalidateScrollUp();
+            repaint();
             return;
         }
 
+
         moveCurserLeft(1);
-        var currentLine = lines.get(curserRow);
         if(currentLine.length()>curserCol){
             currentLine.deleteCharAt(curserCol);
         }
 
-        if(currentLine.isEmpty() && curserRow>0) {
-            lines.remove(curserRow);
-        }
         repaint();
     }
 
@@ -209,19 +227,18 @@ public class EditorView extends ViewComponent {
         aboveLine.append(lines.get(curserRow));
         lines.remove(curserRow);
         curserRow -= 1;
-        repaint();
     }
 
     @Override
     public void enter() {
-        StringBuilder currentLine = lines.get(curserRow);
+        Line currentLine = lines.get(curserRow);
         String subString = "";
         if(currentLine.length()>curserCol){
             subString  = currentLine.substring(curserCol);
             currentLine.delete(curserCol, currentLine.length());
         }
 
-        lines.add(curserRow+1, new StringBuilder(subString));
+        lines.add(curserRow+1, new Line(subString));
         moveCurserDown(1);
         curserCol = 0;
         repaint();
@@ -244,11 +261,11 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void esc() {
-        scrollDown();
+        System.out.println( Tokenizer.tokenize(lines.get(curserRow).toString()));
     }
 
     public List<String> getLines() {
-        return lines.stream().map(StringBuilder::toString).toList();
+        return lines.stream().map(Line::toString).toList();
     }
 
 }

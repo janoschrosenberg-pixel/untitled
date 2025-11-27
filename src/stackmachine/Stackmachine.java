@@ -53,6 +53,8 @@ public class Stackmachine implements Inter{
             System.exit(0);
         } );
 
+        runnableMap.put("FULLSCREEN", this.editorActions::fullScreenMode);
+
 
         for(KeyBinding keyBinding: keyBindings) {
             this.editorActions.bind(keyBinding.key(), runnableMap.get(keyBinding.method()));

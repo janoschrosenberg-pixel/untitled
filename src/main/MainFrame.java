@@ -145,6 +145,21 @@ public class MainFrame extends JFrame implements EditorActions{
         }
     }
 
+    @Override
+    public void fullScreenMode() {
+        dispose();
+        setUndecorated(true);  // Entfernt Titelbar / Rahmen
+        setResizable(false);
+
+        // Fullscreen-Modus aktivieren
+        GraphicsDevice gd = GraphicsEnvironment
+                .getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice();
+
+        gd.setFullScreenWindow(this);
+        setVisible(true);
+    }
+
 
     public MainFrame()  {
 

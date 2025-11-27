@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
-    public static List<StringBuilder> loadResourceFile(String resourceName) throws IOException {
-        List<StringBuilder> lines = new ArrayList<>();
+    public static List<Line> loadResourceFile(String resourceName) throws IOException {
+        List<Line> lines = new ArrayList<>();
 
-        StackUtils.readLines(resourceName, str -> lines.add(new StringBuilder(str)));
+        StackUtils.readLines(resourceName, str -> lines.add(new Line(str)));
 
         return lines;
     }

@@ -21,4 +21,5 @@ public interface EditorActions {
     void bind(char key, Runnable command);
 
     void saveBuffer(String file);
+    void fullScreenMode();
 }
