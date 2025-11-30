@@ -7,6 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Line {
     public final StringBuilder text;
     public List<Token> tokens;
@@ -15,8 +16,6 @@ public class Line {
         this.text = new StringBuilder(text);
         tokens = Tokenizer.tokenize(text);
     }
-
-
 
     public Line() {
         this.text = new StringBuilder();
@@ -107,10 +106,39 @@ public class Line {
 
     private Color getColorForType(Tokenizer type) {
       return  switch (type){
-          case NUMBER ->  Color.ORANGE;
-          case IDENTIFIER -> Color.WHITE;
-          case CUSTOM -> Color.PINK;
+          case NUMBER ->  Color.decode("#fe00ff");
+          case IDENTIFIER, WHITESPACE -> Color.LIGHT_GRAY;
+          case KEYWORD, CHAR -> Color.decode("#f889e8");
+          case STATIC -> Color.GREEN;
+          case BRACKET -> Color.RED;
+          case STRING ->  Color.decode("#f6b2d7");
+          case COMMENT -> Color.GRAY;
+          case SYMBOL -> Color.WHITE;
+          case OPERATOR -> Color.decode("#f9e3e8");
+          case UNKNOWN -> Color.CYAN;
         };
+    }
+
+
+    public int getCurrentTokenId(int column) {
+        for(int i=0; i<tokens.size(); i++) {
+            var token = tokens.get(i);
+            if(token.isBetween(column)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int getCurrentTokenIdSkipWhiteSpace(int column) {
+        for(int i=0; i<tokens.size(); i++) {
+            var token = tokens.get(i);
+            if(token.type() == Tokenizer.WHITESPACE) continue;
+            if(token.isBetween(column) ){
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

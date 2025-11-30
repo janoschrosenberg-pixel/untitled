@@ -51,4 +51,22 @@ public class Utils {
             if (comp instanceof JPasswordField pf) pf.selectAll();
         });
     }
+
+    public static String mergeLines(List<Line> lines) {
+
+            int capacity = 0;
+            for (Line line : lines) {
+                capacity +=line.text.length() + 1; // für '\n'
+            }
+
+            StringBuilder out = new StringBuilder(capacity);
+
+            for (Line line : lines) {
+                out.append(line.text).append('\n');
+            }
+
+            return out.toString();
+
+
+    }
 }

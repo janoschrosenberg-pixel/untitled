@@ -1,5 +1,6 @@
 package main;
 
+import parser.MethodScannerUtil;
 import tokenizer.Tokenizer;
 
 import javax.swing.*;
@@ -12,10 +13,8 @@ import java.util.List;
 public class EditorView extends ViewComponent {
 
     private final List<Line> lines;
-    private int topLine = 0;
 
-    private int curserRow = 0;
-    private int curserCol = 0;
+    private ScrollHandler scrollHandler = new ScrollHandler();
 
     private final  int charHeight = 18;
     private final EditorActions editorActions;
@@ -52,8 +51,6 @@ public class EditorView extends ViewComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-
-
         int y = 0;
 
         int visibleLines = getHeight() / lineHeight;
@@ -61,12 +58,10 @@ public class EditorView extends ViewComponent {
         FontMetrics fm = g.getFontMetrics();  // aktuelle Font
         int charWidth = fm.charWidth('M');    // Breite eines Zeichens
 
-
-
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(Color.BLACK);
         g.fillRect(0,0, getWidth(),getHeight());
         for (int i = 0; i < visibleLines; i++) {
-            int lineIndex = topLine + i;
+            int lineIndex = scrollHandler.getTopLine() + i;
             if (lineIndex >= lines.size())
                 break;
 
@@ -74,173 +69,73 @@ public class EditorView extends ViewComponent {
 
 
             g.setColor(Color.CYAN);
-            g.drawRect(curserCol*charWidth+30, (curserRow-topLine)*charHeight+5,charWidth, charHeight );
+            g.drawRect(scrollHandler.getCurserCol()*charWidth+30,
+                    (scrollHandler.getRelativeCourserRow())*charHeight+5,charWidth, charHeight );
 
-            g.setColor(lineIndex==curserRow?Color.PINK:Color.WHITE);
+            g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.PINK:Color.WHITE);
 
             line.drawText(g, 30, y + lineHeight);
-            g.setColor(lineIndex==curserRow?Color.GREEN:Color.lightGray);
+            g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.GREEN:Color.lightGray);
             g.drawString((lineIndex+1)+"", 0, y + lineHeight);
             y += lineHeight;
         }
     }
 
     public void scrollUp() {
-        if (topLine > 0) topLine--;
+        scrollHandler.scrollUp();
         repaint();
     }
 
     public void scrollDown() {
-        if (topLine < lines.size() - 1) topLine++;
+        scrollHandler.scrollDown(lines.size());
         repaint();
     }
 
     public void moveCurserUp(int amount){
-        if (curserRow > 0) {
-            curserRow-=amount;
-        }
-        revalidateScrollUp();
+        scrollHandler.moveCurserUp(amount);
         repaint();
     }
 
-    private void revalidateScrollUp(){
-        var diff = topLine-curserRow;
-        if(diff>0) {
-            topLine-=diff;
-        }
+
+    private int getVisibleRows() {
+        return getHeight()/charHeight;
     }
-
     public void moveCurserDown(int amount){
-        if (curserRow < lines.size() - 1) {
-            curserRow+=amount;
-        }
-
-        var mayI =  (getHeight()/charHeight)+topLine;
-        var iAm = curserRow+1;
-        var diff = iAm-mayI;
-
-        if(diff>0) {
-            topLine += diff;
-        }
-
+        scrollHandler.moveCurserDown(amount, lines.size(), getVisibleRows());
         repaint();
     }
 
     public void moveCurserLeft(int amount){
-        if(curserCol == 0 && curserRow == 0) {
-            return;
-        }
-
-        if ((curserCol-amount) >= 0) {
-            curserCol-=amount;
-        }else {
-            moveCurserUp(1);
-            curserCol = getCurrentLineSize();
-        }
+        scrollHandler.moveCurserLeft(amount, getCurrentLineSize());
         repaint();
     }
 
     public int getCurrentLineSize(){
-        return this.lines.get(curserRow).length();
+        return this.lines.get(scrollHandler.getCurserRow()).length();
     }
 
     public void moveCurserRight(int amount){
-
-
-            curserCol+=amount;
-
-
+        scrollHandler.moveCurserRight(amount);
         repaint();
-    }
-
-    public char getCharAtCursor(){
-       return lines.get(curserRow+topLine).charAt(curserCol);
     }
 
     @Override
     public void appendChar(char sign) {
-        if(lines.size()-1 < curserRow){
-            lines.add(curserRow, new Line());
-        }
-        var line = lines.get(curserRow);
-        while (line.length() < curserCol) {
-            line.append(' ');
-        }
-        line.insert(curserCol, sign);
-        moveCurserRight(1);
+        scrollHandler.appendChar(sign, lines);
         repaint();
     }
 
     @Override
     public void delChar() {
-
-        if(curserRow == 0 && curserCol == 0){
-            return;
-        }
-
-        if(lines.size()-1 < curserRow){
-            lines.add(curserRow, new Line());
-        }
-
-        if(shouldMerge()){
-            mergeLines();
-            revalidateScrollUp();
-            repaint();
-            return;
-        }
-        var currentLine = lines.get(curserRow);
-
-        if(curserCol == 0) {
-            if (currentLine.isEmpty()) {
-                lines.remove(curserRow);
-            }else{
-                var aboveLine = lines.get(curserRow-1);
-                if(aboveLine.isEmpty()) {
-                    lines.remove(aboveLine);
-                    curserRow -= 1;
-                }
-            }
-            revalidateScrollUp();
-            repaint();
-            return;
-        }
-
-
-        moveCurserLeft(1);
-        if(currentLine.length()>curserCol){
-            currentLine.deleteCharAt(curserCol);
-        }
-
+        scrollHandler.delChar(lines);
         repaint();
     }
 
-    private boolean shouldMerge() {
-     return  curserCol == 0 &&
-             !lines.get(curserRow).isEmpty() &&
-             curserRow > 0 &&
-             !lines.get(curserRow-1).isEmpty();
-    }
 
-    private void mergeLines(){
-        var aboveLine = lines.get(curserRow-1);
-        curserCol = aboveLine.length();
-        aboveLine.append(lines.get(curserRow));
-        lines.remove(curserRow);
-        curserRow -= 1;
-    }
 
     @Override
     public void enter() {
-        Line currentLine = lines.get(curserRow);
-        String subString = "";
-        if(currentLine.length()>curserCol){
-            subString  = currentLine.substring(curserCol);
-            currentLine.delete(curserCol, currentLine.length());
-        }
-
-        lines.add(curserRow+1, new Line(subString));
-        moveCurserDown(1);
-        curserCol = 0;
+        scrollHandler.enter(lines, getVisibleRows());
         repaint();
     }
 
@@ -261,7 +156,14 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void esc() {
-        System.out.println( Tokenizer.tokenize(lines.get(curserRow).toString()));
+        var code = Utils.mergeLines(lines);
+        System.out.println(code);
+        var methods = MethodScannerUtil.scan(code);
+
+        for (var m : methods) {
+            System.out.println(m);
+        }
+
     }
 
     public List<String> getLines() {

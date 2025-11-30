@@ -1,5 +1,11 @@
 package tokenizer;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.CompilationUnit;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,53 +16,55 @@ import static java.util.regex.Pattern.MULTILINE;
 import static java.util.regex.Pattern.compile;
 
 public enum Tokenizer {
-    //KEYWORD(compile("\\b(int|String|double|var|float|class|public|static|void|private|import|throws|main|new|true|false)\\b")),
-    NUMBER(compile("\\b[0-9]+\\b")),
-    IDENTIFIER(compile("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b")),
-    CUSTOM(null);
-
-    private Pattern pattern;
-
-    Tokenizer(Pattern pattern) {
-        this.pattern = pattern;
-    }
-
+    BRACKET,
+    STATIC,
+    KEYWORD,
+    IDENTIFIER,
+    NUMBER,
+    STRING,
+    CHAR,
+    COMMENT,
+    OPERATOR,
+    WHITESPACE,
+    SYMBOL,
+    UNKNOWN;
+    static JavaParser parser = new JavaParser(
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
+    );
     public static List<Token> tokenize(String code) {
         List<Token> tokens = new ArrayList<>();
 
-        for (var entry : values()) {
-            if(CUSTOM == entry) {
-                continue;
-            }
-            Pattern pattern = entry.pattern;
+        ParseResult<CompilationUnit> result = parser.parse(code);
 
-            Matcher matcher = pattern.matcher(code);
-            while (matcher.find()) {
-                tokens.add(new Token(entry, matcher.start(), matcher.end()));
-            }
+        if (result.getResult().isPresent()) {
+            CompilationUnit cu = result.getResult().get();
+            TokenRange tokenRange = cu.getTokenRange().get();
+
+            tokenRange.forEach(token -> {
+                if(token.getKind() != 0){
+
+
+                    var newToken = Token.from(token);
+
+                    if(!tokens.isEmpty() && tokens.getLast().type() == newToken.type()) {
+                        var lastStart = tokens.getLast().start();
+                        var newEnd = newToken.end();
+                        var newType = newToken.type();
+                        tokens.removeLast();
+
+                        tokens.add(new Token(newType, lastStart, newEnd));
+
+                    }else{
+                        tokens.add(newToken);
+                    }
+                }
+
+            });
         }
 
-        tokens.sort(comparingInt(Token::start));
-
-
-        List<Token> result = new ArrayList<>();
-        int pos = 0;
-
-        for (Token t : tokens) {
-            if (t.start() > pos) {
-
-                result.add(new Token(CUSTOM, pos, t.start()));
-            }
-            result.add(t);
-            pos = t.end();
-        }
-
-        // after last token to end-of-string
-        if (pos < code.length()) {
-            result.add(new Token(CUSTOM, pos, code.length()));
-        }
-        return result;
+        return tokens;
     }
+
 
 
 }

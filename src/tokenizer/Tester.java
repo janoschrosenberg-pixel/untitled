@@ -7,12 +7,8 @@ import java.util.Stack;
 
 public class Tester {
     public static void main(String[] args) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        StackUtils.readLines("test.js", sb::append);
-
-       var tokens= Tokenizer.tokenize(sb.toString());
-        for(Token token: tokens) {
-            System.out.println(token);
+        for (int i = 10-1 ; i>=0; i--) {
+            System.out.println(i);
         }
     }
 }
