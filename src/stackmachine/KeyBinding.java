@@ -1,13 +1,16 @@
 package stackmachine;
 
-public record KeyBinding(char key, String method) {
+public record KeyBinding(String key,String mode, String method) {
     @Override
     public String toString() {
-        return key+":"+method;
+        return key+":"+mode+":"+method;
     }
 
     public static KeyBinding parse(String string) {
         var parts = string.split(":");
-        return new KeyBinding(parts[0].charAt(0), parts[1]);
+        if(parts.length == 2) {
+            return new KeyBinding(parts[0], "normal", parts[1]);
+        }
+        return new KeyBinding(parts[0], parts[1], parts[2]);
     }
 }

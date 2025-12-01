@@ -14,6 +14,9 @@ public enum Opcode {
     PUSH_STRING,
     PUSH_CHAR,
     PUSH_DOUBLE,
+    LOAD_FILE,
+    SAVE_BUFFER,
+    EXIT,
     CALL;
 
     public static boolean matches(String s) {

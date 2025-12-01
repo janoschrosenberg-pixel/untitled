@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -99,10 +100,9 @@ public class StackUtils {
         }
     }
 
-    public static boolean isCharStringFormat(String s) {
-        if (s == null) return false;
-
-        return s.matches("^[A-Za-z0-9]:.+$");
+    public static boolean isValidTripleText(String input) {
+        if (input == null) return false;
+        return input.matches("^[^:]+:[^:]+:[^:]+$");
     }
 
     public static void writeLinesToFile(Collection<String> lines, String filePath) throws IOException {
@@ -122,6 +122,64 @@ public class StackUtils {
         }
     }
 
+    public static List<String> tokenize(String code) {
+        List<String> tokens = new ArrayList<>();
+        int i = 0;
+        int n = code.length();
+
+        while (i < n) {
+
+            // Whitespace überspringen
+            if (Character.isWhitespace(code.charAt(i))) {
+                i++;
+                continue;
+            }
+
+            // -------- STRING LITERAL --------
+            if (code.charAt(i) == '"') {
+                int start = i;
+                i++; // erstes "
+                while (i < n && code.charAt(i) != '"') {
+                    i++;
+                }
+                if (i < n) i++; // abschließendes "
+                tokens.add(code.substring(start, i));
+                continue;
+            }
+
+            // -------- START ... END BLOCK --------
+            if (code.startsWith("START", i)) {
+                int start = i;
+                i += 5; // Länge von "START"
+
+                // vorwärts suchen bis END
+                while (i < n && !code.startsWith("END", i)) {
+                    i++;
+                }
+
+                if (i < n) {
+                    i += 3; // Länge von "END"
+                }
+
+                tokens.add(code.substring(start, i));
+                continue;
+            }
+
+            // -------- NORMALER TOKEN --------
+            int start = i;
+            while (i < n && !Character.isWhitespace(code.charAt(i))) {
+                // Wenn wir auf Strings oder START/END treffen -> abbrechen
+                if (code.charAt(i) == '"') break;
+                if (code.startsWith("START", i)) break;
+                if (code.startsWith("END", i)) break;
+
+                i++;
+            }
+            tokens.add(code.substring(start, i));
+        }
+
+        return tokens;
+    }
 
 
 }

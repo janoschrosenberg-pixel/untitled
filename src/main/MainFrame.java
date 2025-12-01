@@ -33,7 +33,6 @@ public class MainFrame extends JFrame implements EditorActions{
             newView = views.get(path);
         }else{
             try {
-
                 newView = new EditorView(Utils.loadResourceFile(path), this);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -81,7 +80,6 @@ public class MainFrame extends JFrame implements EditorActions{
             remove(current);
         }
 
-
         current = new EditorView(null, this);
         add( current,BorderLayout.CENTER);
         revalidate();
@@ -128,8 +126,18 @@ public class MainFrame extends JFrame implements EditorActions{
     }
 
     @Override
-    public void bind(char key, Runnable command) {
-        this.customCommandMode.bind(key, command);
+    public void bind(String key, String mode, Runnable command) {
+        this.customCommandMode.bind(key,mode, command);
+    }
+
+    @Override
+    public void returnCommandContext() {
+        this.customCommandMode.returnContext();
+    }
+
+    @Override
+    public void setEditorMode(String mode) {
+        this.customCommandMode.setMode(mode);
     }
 
     @Override
@@ -163,7 +171,7 @@ public class MainFrame extends JFrame implements EditorActions{
 
     public MainFrame()  {
 
-        this.customCommandMode = new CustomCommandMode(this);
+        this.customCommandMode = new CustomCommandMode();
         setLayout(new BorderLayout());
         clearBuffer();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

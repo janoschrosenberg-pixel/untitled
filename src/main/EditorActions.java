@@ -18,7 +18,10 @@ public interface EditorActions {
     void scrollUp(int amount);
     void scrollDown(int amount);
 
-    void bind(char key, Runnable command);
+    void bind(String key,String mode, Runnable command);
+
+    void returnCommandContext();
+    void setEditorMode(String mode);
 
     void saveBuffer(String file);
     void fullScreenMode();

@@ -30,40 +30,17 @@ public class Stackmachine implements Inter{
             throw new RuntimeException(e);
         }
 
-        // System functions
-        runnableMap.put("COMMAND_MODE", this.editorActions::switchToCommandMode);
-        runnableMap.put("CURSOR_UP", ()->this.editorActions.moveCursorUp(1));
-        runnableMap.put("CURSOR_DOWN", ()->this.editorActions.moveCurserDown(1));
-        runnableMap.put("CURSOR_LEFT", ()->this.editorActions.moveCurserLeft(1));
-        runnableMap.put("CURSOR_RIGHT", ()->this.editorActions.moveCurserRight(1));
-        runnableMap.put("LOAD_FILE", ()->{
-            String filename =   this.stack.pop().toString();
-            this.editorActions.loadFile(filename);
-        } );
-
-        runnableMap.put("SAVE_BUFFER", ()-> {
-            String filename = null;
-            if(!this.stack.isEmpty()){
-                filename = this.stack.pop().toString();
-            }
-            this.editorActions.saveBuffer(filename);
-        });
-
-        runnableMap.put("EXIT", ()->{
-            System.exit(0);
-        } );
-
-        runnableMap.put("FULLSCREEN", this.editorActions::fullScreenMode);
+        BuildInFunctions.addToMap(runnableMap, editorActions);
 
 
         for(KeyBinding keyBinding: keyBindings) {
-            this.editorActions.bind(keyBinding.key(), runnableMap.get(keyBinding.method()));
+            this.editorActions.bind(keyBinding.key(),keyBinding.mode(), runnableMap.get(keyBinding.method()));
         }
     }
 
     @Override
     public void executeCommand(String command) {
-        String[] commands = splitByWhitespace(command);
+        var commands = StackUtils.tokenize(command).toArray(new String[0]);
 
         if(commands.length>2 && commands[0].equals(":")) {
             var compiledCommands = compileCommands( removeFirstTwo(commands));
@@ -92,9 +69,10 @@ public class Stackmachine implements Inter{
                 KeyBinding binding = (KeyBinding) stackCommand.value();
                 var method = binding.method();
                 var key = binding.key();
+                var mode = binding.mode();
                 if(runnableMap.containsKey(method)) {
                     keyBindings.add(binding);
-                    editorActions.bind(key, runnableMap.get(method));
+                    editorActions.bind(key, mode, runnableMap.get(method));
                     try {
                         StackUtils.writeLinesToFile(keyBindings.stream()
                                 .map(KeyBinding::toString)
@@ -107,6 +85,23 @@ public class Stackmachine implements Inter{
             case WRITE_CODE -> {
                 var fileName = stack.pop();
                 writeFile(fileName.toString());
+            }
+
+            case EXIT -> {
+                System.exit(0);
+            }
+
+            case LOAD_FILE -> {
+                String filename =   this.stack.pop().toString();
+                this.editorActions.loadFile(filename);
+            }
+
+            case SAVE_BUFFER -> {
+                String filename = null;
+                if(!this.stack.isEmpty()){
+                    filename = this.stack.pop().toString();
+                }
+                this.editorActions.saveBuffer(filename);
             }
             case CALL -> {
                 var key = stackCommand.value().toString();
@@ -142,7 +137,7 @@ public class Stackmachine implements Inter{
             return new StackCommand(Opcode.ADD, null);
         }
 
-        if(isCharStringFormat(command)) {
+        if(isValidTripleText(command)) {
             return new StackCommand(Opcode.BIND, KeyBinding.parse(command));
         }
 
