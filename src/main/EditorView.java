@@ -1,18 +1,20 @@
 package main;
 
 import parser.MethodScannerUtil;
-import tokenizer.Tokenizer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class EditorView extends ViewComponent {
 
     private final List<Line> lines;
+
+    private static final int CHAR_LENGTH = 10;
 
     private ScrollHandler scrollHandler = new ScrollHandler();
 
@@ -45,6 +47,7 @@ public class EditorView extends ViewComponent {
         }
 
         this.editorActions = editorActions;
+        scrollHandler.updateMethodInfos(this.lines);
     }
 
     @Override
@@ -60,6 +63,14 @@ public class EditorView extends ViewComponent {
 
         g.setColor(Color.BLACK);
         g.fillRect(0,0, getWidth(),getHeight());
+        var selection = scrollHandler.getSelection();
+        if(selection != null) {
+            g.setColor(Color.DARK_GRAY);
+            var width = Math.abs(selection.toColumn()-selection.fromColumn()) * CHAR_LENGTH;
+            var height = (selection.toLine()-selection.fromLine()+1) * lineHeight;
+
+            g.fillRect(selection.fromColumn()*CHAR_LENGTH+30, (selection.fromLine()-scrollHandler.getTopLine()) * lineHeight, width-30, height);
+        }
         for (int i = 0; i < visibleLines; i++) {
             int lineIndex = scrollHandler.getTopLine() + i;
             if (lineIndex >= lines.size())
@@ -72,9 +83,11 @@ public class EditorView extends ViewComponent {
             g.drawRect(scrollHandler.getCurserCol()*charWidth+30,
                     (scrollHandler.getRelativeCourserRow())*charHeight+5,charWidth, charHeight );
 
-            g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.PINK:Color.WHITE);
+
 
             line.drawText(g, 30, y + lineHeight);
+
+
             g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.GREEN:Color.lightGray);
             g.drawString((lineIndex+1)+"", 0, y + lineHeight);
             y += lineHeight;
@@ -141,6 +154,7 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void ctrlPressed() {
+        scrollHandler.updateMethodInfos(lines);
         editorActions.switchToCustomMode();
     }
 
@@ -156,14 +170,8 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void esc() {
-        var code = Utils.mergeLines(lines);
-        System.out.println(code);
-        var methods = MethodScannerUtil.scan(code);
-
-        for (var m : methods) {
-            System.out.println(m);
-        }
-
+        scrollHandler.setCursorToNextMethodStart(this.lines);
+        repaint();
     }
 
     public List<String> getLines() {

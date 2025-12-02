@@ -3,26 +3,29 @@ package stackmachine;
 import main.EditorActions;
 
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Stack;
+import java.util.function.BiFunction;
 
 public enum BuildInFunctions {
-        COMMAND_MODE(e->e::switchToCommandMode),
-        EDITOR_MODE(e->e::switchToEditorMode),
-        CURSOR_UP(e->()->e.moveCursorUp(1)),
-        CURSOR_DOWN(e->()->e.moveCurserDown(1)),
-        CURSOR_LEFT(e->()->e.moveCurserLeft(1)),
-        CURSOR_RIGHT(e->()->e.moveCurserRight(1)),
-        FULLSCREEN(e->e::fullScreenMode);
+        CHANGE_EDITOR_MODE((e,s)-> ()-> e.setEditorMode(s.pop().toString())),
+        PREV_MODE((e,s)->e::returnCommandContext),
+        COMMAND_MODE((e, s)->e::switchToCommandMode),
+        EDITOR_MODE((e, s)->e::switchToEditorMode),
+        CURSOR_UP((e, s)->()->e.moveCursorUp(1)),
+        CURSOR_DOWN((e, s)->()->e.moveCurserDown(1)),
+        CURSOR_LEFT((e, s)->()->e.moveCurserLeft(1)),
+        CURSOR_RIGHT((e, s)->()->e.moveCurserRight(1)),
+        FULLSCREEN((e, s)->e::fullScreenMode);
 
-        private final Function<EditorActions, Runnable> function;
+        private final BiFunction<EditorActions,Stack<Object>, Runnable> function;
 
-    BuildInFunctions(Function<EditorActions, Runnable> function) {
+    BuildInFunctions(BiFunction<EditorActions,Stack<Object>, Runnable> function) {
         this.function = function;
     }
 
-    public static void addToMap(Map<String, Runnable> runnableMap, EditorActions e) {
+    public static void addToMap(Map<String, Runnable> runnableMap, EditorActions e, Stack<Object> stack) {
         for(BuildInFunctions inFunctions: values()) {
-            runnableMap.put(inFunctions.name(), inFunctions.function.apply(e));
+            runnableMap.put(inFunctions.name(), inFunctions.function.apply(e, stack));
         }
     }
 }

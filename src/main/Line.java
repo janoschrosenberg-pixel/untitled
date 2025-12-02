@@ -100,6 +100,7 @@ public class Line {
             g.setColor(getColorForType(t.type()));
 
             g.drawString(frag, x, y);
+
             x += g.getFontMetrics().stringWidth(frag);
         }
     }

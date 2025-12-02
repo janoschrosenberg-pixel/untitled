@@ -30,7 +30,7 @@ public class Stackmachine implements Inter{
             throw new RuntimeException(e);
         }
 
-        BuildInFunctions.addToMap(runnableMap, editorActions);
+        BuildInFunctions.addToMap(runnableMap, editorActions, this.stack);
 
 
         for(KeyBinding keyBinding: keyBindings) {

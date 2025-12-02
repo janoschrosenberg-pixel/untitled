@@ -1,11 +1,18 @@
 package main;
 
+import parser.MethodScannerUtil;
 import tokenizer.Token;
 import tokenizer.Tokenizer;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ScrollHandler {
+
+    private List<MethodScannerUtil.MethodInfo> methodInfos = new ArrayList<>();
+
+    private Selection selection = null;
     private int curserRow=0;
 
     public int getTopLine() {
@@ -102,10 +109,17 @@ public class ScrollHandler {
     }
 
     private void revalidateScollDown(int heightThroughCharHeight) {
-        var mayI = heightThroughCharHeight +topLine;
+        var mayI = heightThroughCharHeight + topLine;
         var iAm = curserRow+1;
         var diff = iAm-mayI;
 
+        if(diff>0) {
+            topLine += diff;
+        }
+    }
+
+    private void revalidateScollDown() {
+        var diff = curserRow+1-topLine;
         if(diff>0) {
             topLine += diff;
         }
@@ -271,4 +285,37 @@ public class ScrollHandler {
        }
     }
 
+    public void updateMethodInfos(List<Line> lines){
+        var code = Utils.mergeLines(lines);
+        this.methodInfos = MethodScannerUtil.scan(code);
+        this.methodInfos.sort(Comparator.comparingInt(MethodScannerUtil.MethodInfo::startLine));
+
+    }
+
+    public Selection getSelection() {
+        return selection;
+    }
+
+    public void setCursorToNextMethodStart(List<Line> lines) {
+        if(methodInfos.isEmpty()) {
+            return;
+        }
+         Result<MethodScannerUtil.MethodInfo> info =  Utils.findRangeResult(this.methodInfos, curserRow+1);
+
+        int nextIndex = info.index() + 1;
+
+        if(nextIndex>=this.methodInfos.size()) {
+            nextIndex = 0;
+        }
+
+        var next = this.methodInfos.get(nextIndex);
+
+        curserRow = next.startLine() -1;
+        curserCol = next.startColumn() -1;
+
+        revalidateScollDown();
+        revalidateScrollUp();
+        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  curserCol+lines.get(next.bodyStartLine()-1).text.length()-1);
+
+    }
 }
