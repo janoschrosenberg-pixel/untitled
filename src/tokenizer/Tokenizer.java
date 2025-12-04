@@ -16,6 +16,8 @@ import static java.util.regex.Pattern.MULTILINE;
 import static java.util.regex.Pattern.compile;
 
 public enum Tokenizer {
+    ROUND_BRACKET,
+    MODIFIER,
     BRACKET,
     STATIC,
     KEYWORD,
@@ -27,7 +29,7 @@ public enum Tokenizer {
     OPERATOR,
     WHITESPACE,
     SYMBOL,
-    UNKNOWN;
+    UNKNOWN, COMPARE, LOGICAL, COLON, ARITHMETIC;
     static JavaParser parser = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
     );
@@ -43,10 +45,9 @@ public enum Tokenizer {
             tokenRange.forEach(token -> {
                 if(token.getKind() != 0){
 
-
                     var newToken = Token.from(token);
 
-                    if(!tokens.isEmpty() && tokens.getLast().type() == newToken.type()) {
+                    if(!tokens.isEmpty() && tokens.getLast().type() == newToken.type() &&  tokens.getLast().type() == Tokenizer.WHITESPACE) {
                         var lastStart = tokens.getLast().start();
                         var newEnd = newToken.end();
                         var newType = newToken.type();

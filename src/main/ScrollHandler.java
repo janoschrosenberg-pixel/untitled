@@ -119,7 +119,7 @@ public class ScrollHandler {
     }
 
     private void revalidateScollDown() {
-        var diff = curserRow+1-topLine;
+        var diff = curserRow-topLine-3;
         if(diff>0) {
             topLine += diff;
         }
@@ -188,101 +188,108 @@ public class ScrollHandler {
         curserCol = 0;
     }
 
-    private void setCursorToPreviousToken(List<Line> lines, int currentRow, int currentColumn) {
-
-        Line line = lines.get(currentRow);
-        var tokens = line.getTokens().stream().filter(t -> t.type() != Tokenizer.WHITESPACE).toList();
-        int tokenId = line.getCurrentTokenIdSkipWhiteSpace(currentColumn);
-
-        if(!tokens.isEmpty()) {
-
-            // is on white space
-            if(tokenId < 0) {
-                for (int i = tokens.size()-1 ; i>=0; i--) {
-                    Token currentToken = tokens.get(i);
-                    if(currentToken.isBetween(currentColumn)) {
-                        this.curserCol = currentToken.start();
-                        this.curserRow = currentRow;
-                        return;
-                    }
-                }
-
-                if(curserRow>0) {
-                    setCursorToPreviousToken(lines, currentRow -1, currentColumn);
-                }
-            } else {
-                this.curserCol = tokens.get(tokenId).start();
-                this.curserRow = currentRow;
-            }
-
-
-        }else{
-            if(curserRow>0) {
-                setCursorToPreviousToken(lines, currentRow -1, currentColumn);
-            }
-        }
+    public void setCursorToPreviousToken(List<Line> lines){
+        setCursorToPreviousToken(lines, this.curserRow, this.curserCol);
     }
 
-    public void setCursorToPreviousToken(List<Line> lines) {
-        Line line = lines.get(curserRow);
-        var tokens = line.getTokens().stream().filter(t -> t.type() != Tokenizer.WHITESPACE).toList();
-        if(!tokens.isEmpty()) {
-            int id;
-            var currentCurserCol = curserCol;
-            while((id=line.getCurrentTokenId(currentCurserCol))<0 && currentCurserCol>0){
-                currentCurserCol-=1;
-            }
+    public void setCursorToNextToken(List<Line> lines, int relative){
+        setCursorToNextToken(lines, this.curserRow, this.curserCol, relative);
+    }
 
-
-
-            var last = tokens.getLast();
-            if(last.end()<=curserCol) {
-                curserCol = last.start();
-                return;
-            }
-            if (id > 0 ) {
-                curserCol = tokens.get(id - 1).start();
-                return;
-            }
+    private void handlePrevRow(List<Line> lines, int row) {
+        if(row<0){
+            return;
+        }
+        Line line = lines.get(row);
+        var tokens = line.getTokenSkipWhitespace();
+        if(tokens.isEmpty()) {
+            handlePrevRow(lines, row-1);
+            return;
         }
 
-        int counter = curserRow-1;
-        while ( counter > 0 ) {
-            Line prevLine = lines.get(counter);
-            if(!prevLine.tokens.isEmpty()) {
-                curserCol = prevLine.tokens.getLast().start();
-                curserRow = counter;
-                revalidateScrollUp();
-                return;
-            }
-            counter--;
+        var nextToken = tokens.getLast();
+
+        this.curserCol = nextToken.start();
+        this.curserRow = row;
+
+        revalidateScrollUp();
+
+        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+
+    }
+    private void handleNextRow(List<Line> lines, int row, int relative) {
+        if(row>=lines.size()) {
+            return;
         }
+
+        Line line = lines.get(row);
+        var tokens = line.getTokenSkipWhitespace();
+        if(tokens.isEmpty()) {
+            handleNextRow(lines, row+1, relative);
+            return;
+        }
+
+        var nextToken = tokens.getFirst();
+
+        this.curserCol = nextToken.start();
+        this.curserRow = row;
+
+        revalidateScollDown(relative);
+
+        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
 
     }
 
-    public void setCurserToNextToken(List<Line> lines,int heightThroughCharHeight) {
-       Line line = lines.get(curserRow);
-        var tokens = line.getTokens();
 
-       if(!tokens.isEmpty()) {
-           int id = line.getCurrentTokenId(curserCol);
-           if (id >= 0 && id + 1 < tokens.size()) {
-               curserCol = tokens.get(id + 1).start();
-               return;
-           }
-       }
+    private void setCursorToNextToken(List<Line> lines, int row, int col, int relative) {
+        Line line = lines.get(row);
+        var tokens = line.getTokenSkipWhitespace();
 
-       int counter = 1;
-       while (lines.size()> curserRow + counter ) {
-           Line nextLine = lines.get(curserRow + counter);
-           if(!nextLine.tokens.isEmpty()) {
-               curserCol = nextLine.tokens.getFirst().start();
-               curserRow+= counter;
-               revalidateScollDown(heightThroughCharHeight);
-               return;
-           }
-           counter++;
-       }
+        if(tokens.isEmpty()) {
+            handleNextRow(lines, row+1, relative);
+            return;
+        }
+
+        var result = line.getCurrentTokenSkipWhitespace(col);
+
+        var newIndex = result.index()+1;
+
+        if(newIndex >= tokens.size()){
+            handleNextRow(lines, row+1, relative);
+            return;
+        }
+
+        var nextToken = tokens.get(newIndex);
+
+        this.curserCol = nextToken.start();
+        this.curserRow = row;
+        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+    }
+
+
+    private void setCursorToPreviousToken(List<Line> lines, int row, int col) {
+        Line line = lines.get(row);
+        var tokens = line.getTokenSkipWhitespace();
+
+        if(tokens.isEmpty()) {
+            handlePrevRow(lines, row-1);
+            return;
+        }
+
+        var result = line.getCurrentTokenSkipWhitespace(col);
+
+        var newIndex = result.index()-1;
+
+        if(newIndex<0){
+            handlePrevRow(lines, row-1);
+            return;
+        }
+
+        var nextToken = tokens.get(newIndex);
+
+        this.curserCol = nextToken.start();
+        this.curserRow = row;
+        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
     }
 
     public void updateMethodInfos(List<Line> lines){
@@ -296,6 +303,33 @@ public class ScrollHandler {
         return selection;
     }
 
+    public void clearSelection() {
+        this.selection = null;
+    }
+
+
+    public void setCursorToPrevMethodStart(List<Line> lines) {
+        if(methodInfos.isEmpty()) {
+            return;
+        }
+        Result<MethodScannerUtil.MethodInfo> info =  Utils.findRangeResult(this.methodInfos, curserRow+1);
+
+        int nextIndex = info.index() - 1;
+
+        MethodScannerUtil.MethodInfo next;
+        if(nextIndex<0) {
+            next =  info.object();
+        }else{
+            next = this.methodInfos.get(nextIndex);
+        }
+
+        curserRow = next.startLine() -1;
+        curserCol = next.startColumn() -1;
+
+        revalidateScrollUp();
+        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length());
+    }
+
     public void setCursorToNextMethodStart(List<Line> lines) {
         if(methodInfos.isEmpty()) {
             return;
@@ -304,18 +338,19 @@ public class ScrollHandler {
 
         int nextIndex = info.index() + 1;
 
+        MethodScannerUtil.MethodInfo next;
         if(nextIndex>=this.methodInfos.size()) {
-            nextIndex = 0;
+            next = info.object();
+        }else{
+            next = this.methodInfos.get(nextIndex);
         }
-
-        var next = this.methodInfos.get(nextIndex);
-
         curserRow = next.startLine() -1;
         curserCol = next.startColumn() -1;
 
         revalidateScollDown();
-        revalidateScrollUp();
-        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  curserCol+lines.get(next.bodyStartLine()-1).text.length()-1);
+        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length());
+
 
     }
 }
+

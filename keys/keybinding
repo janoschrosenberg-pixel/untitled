@@ -1,5 +1,9 @@
 ctrl:normal:EDITOR_MODE
 k:normal:CURSOR_DOWN
+s:normal:CURSOR_PREV_TOKEN
+d:normal:CURSOR_NEXT_METHOD
+f:normal:CURSOR_NEXT_TOKEN
+e:normal:CURSOR_PREV_METHOD
 c:normal:COMMAND_MODE
 l:normal:CURSOR_RIGHT
 j:normal:CURSOR_LEFT

@@ -1,13 +1,13 @@
 package main;
 
-import parser.MethodScannerUtil;
+
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
+
 import java.util.List;
 
 public class EditorView extends ViewComponent {
@@ -16,12 +16,12 @@ public class EditorView extends ViewComponent {
 
     private static final int CHAR_LENGTH = 10;
 
-    private ScrollHandler scrollHandler = new ScrollHandler();
+    private final ScrollHandler scrollHandler = new ScrollHandler();
 
     private final  int charHeight = 18;
     private final EditorActions editorActions;
 
-    private final int lineHeight = 18;
+    public final static int lineHeight = 18;
 
     Font customFont;
     {
@@ -69,7 +69,7 @@ public class EditorView extends ViewComponent {
             var width = Math.abs(selection.toColumn()-selection.fromColumn()) * CHAR_LENGTH;
             var height = (selection.toLine()-selection.fromLine()+1) * lineHeight;
 
-            g.fillRect(selection.fromColumn()*CHAR_LENGTH+30, (selection.fromLine()-scrollHandler.getTopLine()) * lineHeight, width-30, height);
+            g.fillRect(selection.fromColumn()*CHAR_LENGTH+30, (selection.fromLine()-scrollHandler.getTopLine()) * lineHeight+5, width, height);
         }
         for (int i = 0; i < visibleLines; i++) {
             int lineIndex = scrollHandler.getTopLine() + i;
@@ -85,7 +85,8 @@ public class EditorView extends ViewComponent {
 
 
 
-            line.drawText(g, 30, y + lineHeight);
+
+            line.drawText(g, 30, y + lineHeight, selection, lineIndex);
 
 
             g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.GREEN:Color.lightGray);
@@ -144,7 +145,10 @@ public class EditorView extends ViewComponent {
         repaint();
     }
 
-
+public void clearSelection() {
+        scrollHandler.clearSelection();
+        repaint();
+}
 
     @Override
     public void enter() {
@@ -170,7 +174,7 @@ public class EditorView extends ViewComponent {
 
     @Override
     public void esc() {
-        scrollHandler.setCursorToNextMethodStart(this.lines);
+        scrollHandler.setCursorToPrevMethodStart(lines);
         repaint();
     }
 
@@ -178,4 +182,23 @@ public class EditorView extends ViewComponent {
         return lines.stream().map(Line::toString).toList();
     }
 
+    public void toNextWord() {
+        scrollHandler.setCursorToNextToken(lines,getVisibleRows());
+        repaint();
+    }
+
+    public void toPrevMethod() {
+        scrollHandler.setCursorToPrevMethodStart(lines);
+        repaint();
+    }
+
+    public void toNextMethod() {
+        scrollHandler.setCursorToNextMethodStart(lines);
+        repaint();
+    }
+
+    public void toPrevWord() {
+        scrollHandler.setCursorToPreviousToken(lines);
+        repaint();
+    }
 }

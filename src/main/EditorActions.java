@@ -25,4 +25,10 @@ public interface EditorActions {
 
     void saveBuffer(String file);
     void fullScreenMode();
+
+    void toNextWord();
+    void toPrevWord();
+
+    void toNextMethod();
+    void toPrevMethod();
 }

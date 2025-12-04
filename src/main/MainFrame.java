@@ -61,15 +61,16 @@ public class MainFrame extends JFrame implements EditorActions{
     }
 
     @Override
-    public synchronized void switchToEditorMode() {
+    public void switchToEditorMode() {
         commandMode = current;
         commandView.setVisible(false);
+        current.clearSelection();
         updateStatusView();
         revalidate();
     }
 
     @Override
-    public synchronized void  switchToCustomMode() {
+    public void  switchToCustomMode() {
         commandMode = customCommandMode;
         updateStatusView();
     }
@@ -166,6 +167,26 @@ public class MainFrame extends JFrame implements EditorActions{
 
         gd.setFullScreenWindow(this);
         setVisible(true);
+    }
+
+    @Override
+    public void toNextWord() {
+        this.current.toNextWord();
+    }
+
+    @Override
+    public void toPrevWord() {
+    this.current.toPrevWord();
+    }
+
+    @Override
+    public void toNextMethod() {
+        this.current.toNextMethod();
+    }
+
+    @Override
+    public void toPrevMethod() {
+        this.current.toPrevMethod();
     }
 
 

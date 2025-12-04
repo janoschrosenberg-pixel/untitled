@@ -15,6 +15,13 @@ public enum BuildInFunctions {
         CURSOR_DOWN((e, s)->()->e.moveCurserDown(1)),
         CURSOR_LEFT((e, s)->()->e.moveCurserLeft(1)),
         CURSOR_RIGHT((e, s)->()->e.moveCurserRight(1)),
+
+        CURSOR_NEXT_TOKEN((e,s)->e::toNextWord),
+        CURSOR_PREV_TOKEN((e,s)->e::toPrevWord),
+
+        CURSOR_PREV_METHOD((e,s)->e::toPrevMethod),
+        CURSOR_NEXT_METHOD((e,s)->e::toNextMethod),
+
         FULLSCREEN((e, s)->e::fullScreenMode);
 
         private final BiFunction<EditorActions,Stack<Object>, Runnable> function;

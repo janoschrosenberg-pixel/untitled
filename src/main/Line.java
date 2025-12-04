@@ -5,10 +5,17 @@ import tokenizer.Tokenizer;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static main.ColorUtils.getOptimalContrastColor;
+import static main.EditorView.lineHeight;
+
 
 
 public class Line {
+
     public final StringBuilder text;
     public List<Token> tokens;
 
@@ -92,21 +99,40 @@ public class Line {
         return tokens;
     }
 
-    public void drawText(Graphics g, int x, int y) {
+    public void drawText(Graphics g, int x, int y, Selection selection,int index) {
         String line = toString();
 
         for (Token t : tokens) {
             String frag = line.substring(t.start(), t.end());
-            g.setColor(getColorForType(t.type()));
+            Color textColor = getColorForType(t.type());
 
+            int size = g.getFontMetrics().stringWidth(frag);
+            if(selection != null
+                    && selection.fromLine() == index
+                    && index == selection.toLine() && t.equalsSelection(selection)) {
+
+                Color background = textColor;
+                textColor = getOptimalContrastColor(textColor);
+                g.setColor(background);
+                g.fillRect(x, y - 13, size, lineHeight);
+            }
+
+
+            g.setColor(textColor);
             g.drawString(frag, x, y);
 
-            x += g.getFontMetrics().stringWidth(frag);
+            x += size;
         }
     }
 
     private Color getColorForType(Tokenizer type) {
       return  switch (type){
+          case ARITHMETIC -> Color.decode("#00f0ff");
+          case COLON -> Color.PINK;
+          case LOGICAL -> Color.MAGENTA;
+          case ROUND_BRACKET -> Color.BLUE;
+          case MODIFIER -> Color.ORANGE;
+          case COMPARE -> Color.YELLOW;
           case NUMBER ->  Color.decode("#fe00ff");
           case IDENTIFIER, WHITESPACE -> Color.LIGHT_GRAY;
           case KEYWORD, CHAR -> Color.decode("#f889e8");
@@ -121,25 +147,12 @@ public class Line {
     }
 
 
-    public int getCurrentTokenId(int column) {
-        for(int i=0; i<tokens.size(); i++) {
-            var token = tokens.get(i);
-            if(token.isBetween(column)){
-                return i;
-            }
-        }
-        return -1;
+    public Result<Token> getCurrentTokenSkipWhitespace(int column) {
+      return  Utils.findIntervalWithIndex(getTokenSkipWhitespace(), column, Token::start);
     }
 
-    public int getCurrentTokenIdSkipWhiteSpace(int column) {
-        for(int i=0; i<tokens.size(); i++) {
-            var token = tokens.get(i);
-            if(token.type() == Tokenizer.WHITESPACE) continue;
-            if(token.isBetween(column) ){
-                return i;
-            }
-        }
-        return -1;
+    public List<Token> getTokenSkipWhitespace() {
+        return tokens.stream().filter(Token::noWhitespace).toList();
     }
 
 }

@@ -4,6 +4,7 @@ import parser.MethodScannerUtil;
 import stackmachine.StackUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -118,5 +119,20 @@ public class Utils {
 
     public static Result<MethodScannerUtil.MethodInfo> findRangeResult(List<MethodScannerUtil.MethodInfo> ranges, int x) {
         return findIntervalWithIndex(ranges, x, MethodScannerUtil.MethodInfo::startLine);
+    }
+
+    public static Color getComplementaryColorHSB(Color color) {
+        if (color == null) {
+            throw new IllegalArgumentException("Color darf nicht null sein");
+        }
+
+        // RGB in HSB umwandeln
+        float[] hsbVals = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+
+        // Farbton um 180° drehen (0.5 im Bereich 0-1)
+        float newHue = (hsbVals[0] + 0.5f) % 1.0f;
+
+        // Neue Farbe aus HSB-Werten erstellen
+        return Color.getHSBColor(newHue, hsbVals[1], hsbVals[2]);
     }
 }
