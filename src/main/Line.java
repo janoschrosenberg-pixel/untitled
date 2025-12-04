@@ -5,11 +5,8 @@ import tokenizer.Tokenizer;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static main.ColorUtils.getOptimalContrastColor;
 import static main.EditorView.lineHeight;
 
 
@@ -104,15 +101,15 @@ public class Line {
 
         for (Token t : tokens) {
             String frag = line.substring(t.start(), t.end());
-            Color textColor = getColorForType(t.type());
+            Color textColor = t.type().getTextColor();
 
             int size = g.getFontMetrics().stringWidth(frag);
             if(selection != null
                     && selection.fromLine() == index
                     && index == selection.toLine() && t.equalsSelection(selection)) {
 
-                Color background = textColor;
-                textColor = getOptimalContrastColor(textColor);
+                Color background = t.type().getTextColor();
+                textColor = t.type().getBackgroundColor();
                 g.setColor(background);
                 g.fillRect(x, y - 13, size, lineHeight);
             }
@@ -123,27 +120,6 @@ public class Line {
 
             x += size;
         }
-    }
-
-    private Color getColorForType(Tokenizer type) {
-      return  switch (type){
-          case ARITHMETIC -> Color.decode("#00f0ff");
-          case COLON -> Color.PINK;
-          case LOGICAL -> Color.MAGENTA;
-          case ROUND_BRACKET -> Color.BLUE;
-          case MODIFIER -> Color.ORANGE;
-          case COMPARE -> Color.YELLOW;
-          case NUMBER ->  Color.decode("#fe00ff");
-          case IDENTIFIER, WHITESPACE -> Color.LIGHT_GRAY;
-          case KEYWORD, CHAR -> Color.decode("#f889e8");
-          case STATIC -> Color.GREEN;
-          case BRACKET -> Color.RED;
-          case STRING ->  Color.decode("#f6b2d7");
-          case COMMENT -> Color.GRAY;
-          case SYMBOL -> Color.WHITE;
-          case OPERATOR -> Color.decode("#f9e3e8");
-          case UNKNOWN -> Color.CYAN;
-        };
     }
 
 

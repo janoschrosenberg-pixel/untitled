@@ -5,7 +5,9 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
+import main.ColorUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,21 +17,36 @@ import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.MULTILINE;
 import static java.util.regex.Pattern.compile;
 
+
 public enum Tokenizer {
-    ROUND_BRACKET,
-    MODIFIER,
-    BRACKET,
-    STATIC,
-    KEYWORD,
-    IDENTIFIER,
-    NUMBER,
-    STRING,
-    CHAR,
-    COMMENT,
-    OPERATOR,
-    WHITESPACE,
-    SYMBOL,
-    UNKNOWN, COMPARE, LOGICAL, COLON, ARITHMETIC;
+    ROUND_BRACKET(new Color(255, 68, 68)),
+    MODIFIER(new Color(255, 110, 0)),
+    IDENTIFIER(new Color(255, 200, 0)),
+    STATIC(new Color(180, 255, 68)),
+    KEYWORD(new Color(0, 200, 0)),
+    NUMBER(new Color(200, 0, 255)),
+    BRACKET(new Color(0, 255, 255)),
+    STRING(new Color(0, 180, 255)),
+    CHAR(new Color(68, 85, 255)),
+    COMMENT(new Color(140, 0, 255)),
+    OPERATOR(
+            new Color(0, 255, 150)
+    ),
+    WHITESPACE(new Color(255, 0, 150)),
+    SYMBOL(new Color(255, 120, 180)),
+    UNKNOWN(new Color(255, 180, 50)),
+    COMPARE(new Color(80, 255, 200)),
+    LOGICAL(new Color(120, 255, 120)),
+    COLON(new Color(255, 160, 0)),
+    ARITHMETIC(new Color(180, 120, 255));
+
+    private Color textColor;
+    private Color backgroundColor;
+
+    Tokenizer(Color textColor) {
+        this.textColor = textColor;
+        this.backgroundColor = ColorUtils.getHarmonicContrastColor(textColor);
+    }
     static JavaParser parser = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
     );
@@ -66,6 +83,13 @@ public enum Tokenizer {
         return tokens;
     }
 
+    public Color getTextColor() {
+        return this.textColor;
+    }
+
+    public Color getBackgroundColor(){
+        return this.backgroundColor;
+    }
 
 
 }
