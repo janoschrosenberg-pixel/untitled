@@ -1,4 +1,4 @@
-package main;
+package editor;
 
 public interface EditorActions {
     void loadFile(String file);

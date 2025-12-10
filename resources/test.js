@@ -8,7 +8,7 @@ public class Tester {
     public static void main(String[] args) throws IOException {
     JFrame frame = new JFrame();
 
-    EditorView editorView =  new EditorView(Utils.loadResourceFile("test.js"));
+    EditorView editorView =  new EditorView(Utils.loadResourceFile("test.java.js"));
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

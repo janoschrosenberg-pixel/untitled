@@ -1,8 +1,6 @@
-package main;
+package editor;
 
 import parser.MethodScannerUtil;
-import tokenizer.Token;
-import tokenizer.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,6 +1,8 @@
 package stackmachine;
 
-import main.EditorActions;
+
+
+import editor.EditorActions;
 
 import java.io.IOException;
 import java.math.BigDecimal;

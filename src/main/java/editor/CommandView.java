@@ -1,7 +1,6 @@
-package main;
+package editor;
 
 import stackmachine.Inter;
-import stackmachine.Stackmachine;
 
 import javax.swing.*;
 import java.awt.*;

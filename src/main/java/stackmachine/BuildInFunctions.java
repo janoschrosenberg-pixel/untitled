@@ -1,7 +1,5 @@
 package stackmachine;
 
-import main.EditorActions;
-
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.BiFunction;
@@ -24,13 +22,13 @@ public enum BuildInFunctions {
 
         FULLSCREEN((e, s)->e::fullScreenMode);
 
-        private final BiFunction<EditorActions,Stack<Object>, Runnable> function;
+        private final BiFunction<editor.EditorActions,Stack<Object>, Runnable> function;
 
-    BuildInFunctions(BiFunction<EditorActions,Stack<Object>, Runnable> function) {
+    BuildInFunctions(BiFunction<editor.EditorActions,Stack<Object>, Runnable> function) {
         this.function = function;
     }
 
-    public static void addToMap(Map<String, Runnable> runnableMap, EditorActions e, Stack<Object> stack) {
+    public static void addToMap(Map<String, Runnable> runnableMap, editor.EditorActions e, Stack<Object> stack) {
         for(BuildInFunctions inFunctions: values()) {
             runnableMap.put(inFunctions.name(), inFunctions.function.apply(e, stack));
         }

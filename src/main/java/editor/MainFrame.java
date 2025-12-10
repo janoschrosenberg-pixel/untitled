@@ -1,4 +1,4 @@
-package main;
+package editor;
 
 import stackmachine.Inter;
 import stackmachine.StackUtils;

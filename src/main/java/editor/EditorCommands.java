@@ -1,4 +1,4 @@
-package main;
+package editor;
 
 public interface EditorCommands {
     void appendChar(char sign);

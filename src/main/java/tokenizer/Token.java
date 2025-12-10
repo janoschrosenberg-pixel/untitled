@@ -1,7 +1,6 @@
 package tokenizer;
 
 import com.github.javaparser.JavaToken;
-import main.Selection;
 
 import static tokenizer.Tokenizer.WHITESPACE;
 
@@ -11,7 +10,7 @@ public record Token(Tokenizer type, int start, int end) {
         return type != WHITESPACE;
     }
 
-    public boolean equalsSelection(Selection selection) {
+    public boolean equalsSelection(editor.Selection selection) {
        return this.start() == selection.fromColumn() && this.end() == selection.toColumn();
     }
 

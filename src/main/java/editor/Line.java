@@ -1,4 +1,4 @@
-package main;
+package editor;
 
 import tokenizer.Token;
 import tokenizer.Tokenizer;
@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static main.EditorView.lineHeight;
+
 
 
 
@@ -111,7 +111,7 @@ public class Line {
                 Color background = t.type().getTextColor();
                 textColor = t.type().getBackgroundColor();
                 g.setColor(background);
-                g.fillRect(x, y - 13, size, lineHeight);
+                g.fillRect(x, y - 13, size, EditorView.lineHeight);
             }
 
 

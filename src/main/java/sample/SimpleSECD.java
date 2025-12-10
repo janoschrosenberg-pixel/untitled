@@ -1,9 +1,9 @@
-package lisp.sample;
+package sample;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static lisp.sample.SimpleSECD.Machine.deepCopyEnv;
+import static sample.SimpleSECD.Machine.deepCopyEnv;
 
 public class SimpleSECD {
 

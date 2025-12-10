@@ -1,9 +1,8 @@
-package main;
+package editor;
 
 import parser.MethodScannerUtil;
 import stackmachine.StackUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;

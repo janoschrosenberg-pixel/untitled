@@ -5,25 +5,21 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
-import main.ColorUtils;
+import editor.ColorUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static java.util.Comparator.comparingInt;
-import static java.util.regex.Pattern.MULTILINE;
 import static java.util.regex.Pattern.compile;
 
 
 public enum Tokenizer {
     ROUND_BRACKET(new Color(255, 68, 68)),
-    MODIFIER(new Color(255, 110, 0)),
-    IDENTIFIER(new Color(255, 200, 0)),
-    STATIC(new Color(180, 255, 68)),
-    KEYWORD(new Color(0, 200, 0)),
+    MODIFIER(new Color(255, 0, 0)),
+    STATIC(new Color(255, 0, 255)),
+    KEYWORD(new Color(255, 255, 0)),
+    IDENTIFIER(new Color(0, 220, 60)),
     NUMBER(new Color(200, 0, 255)),
     BRACKET(new Color(0, 255, 255)),
     STRING(new Color(0, 180, 255)),

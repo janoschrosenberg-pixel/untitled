@@ -1,6 +1,4 @@
-:bind_c
-PUSH_CHAR c
-PUSH_STRING COMMAND_MODE
-BIND
+PUSH_STRING "rambo zambo"
+PRINT
 
 

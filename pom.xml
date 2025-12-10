@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <groupId>com.example</groupId>
-    <artifactId>meinprojekt</artifactId>
+    <groupId>untitled</groupId>
+    <artifactId>untitled</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -21,7 +21,15 @@
             <version>3.26.2</version>
         </dependency>
 
-    </dependencies>
+        <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j</artifactId>
+            <version>0.21.0</version>
+        </dependency>
+
+        </dependencies>
+
+
 
 
 </project>
