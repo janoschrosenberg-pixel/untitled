@@ -31,4 +31,10 @@ public interface EditorActions {
 
     void toNextMethod();
     void toPrevMethod();
+
+    void openMenu(String name);
+    void sendMenuCommand(String command);
+    void closeMenu();
+
+    void registerMenuFunction(String menuName, String name, String function);
 }

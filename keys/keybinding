@@ -7,4 +7,11 @@ e:normal:CURSOR_PREV_METHOD
 c:normal:COMMAND_MODE
 l:normal:CURSOR_RIGHT
 j:normal:CURSOR_LEFT
+esc:FILEMENU:CLOSE_MENU
 i:normal:CURSOR_UP
+i:FILEMENU:menu_up
+k:FILEMENU:menu_down
+j:FILEMENU:menu_left
+l:FILEMENU:menu_right
+h:FILEMENU:menu_back
+enter:FILEMENU:menu_select

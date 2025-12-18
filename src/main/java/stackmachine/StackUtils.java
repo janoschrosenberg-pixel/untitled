@@ -8,10 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class StackUtils {
@@ -148,12 +145,12 @@ public class StackUtils {
             }
 
             // -------- START ... END BLOCK --------
-            if (code.startsWith("START", i)) {
+            if (code.startsWith("{START", i)) {
                 int start = i;
                 i += 5; // Länge von "START"
 
                 // vorwärts suchen bis END
-                while (i < n && !code.startsWith("END", i)) {
+                while (i < n && !code.startsWith("END}", i)) {
                     i++;
                 }
 
@@ -170,8 +167,8 @@ public class StackUtils {
             while (i < n && !Character.isWhitespace(code.charAt(i))) {
                 // Wenn wir auf Strings oder START/END treffen -> abbrechen
                 if (code.charAt(i) == '"') break;
-                if (code.startsWith("START", i)) break;
-                if (code.startsWith("END", i)) break;
+                if (code.startsWith("{START", i)) break;
+                if (code.startsWith("END}", i)) break;
 
                 i++;
             }
@@ -179,6 +176,26 @@ public class StackUtils {
         }
 
         return tokens;
+    }
+
+
+    public static Map<String, List<String>> parseFileByColonSections(Path file) throws IOException {
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        String currentKey = null;
+
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith(":")) {
+                    currentKey = line;
+                    result.put(currentKey, new ArrayList<>());
+                } else if (currentKey != null) {
+                    result.get(currentKey).add(line);
+                }
+            }
+        }
+
+        return result;
     }
 
 

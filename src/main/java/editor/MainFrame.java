@@ -16,7 +16,7 @@ public class MainFrame extends JFrame implements EditorActions{
     private final Map<String,  EditorView> views = new HashMap<>();
     private EditorView current;
     private String currentFilename = "NEW_FILE";
-
+    Inter stackmachine;
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
 
@@ -33,7 +33,7 @@ public class MainFrame extends JFrame implements EditorActions{
             newView = views.get(path);
         }else{
             try {
-                newView = new EditorView(Utils.loadResourceFile(path), this);
+                newView = new EditorView(Utils.loadResourceFile(path), this, stackmachine);
             } catch (IOException e) {
                 e.printStackTrace();
                return;
@@ -81,7 +81,7 @@ public class MainFrame extends JFrame implements EditorActions{
             remove(current);
         }
 
-        current = new EditorView(null, this);
+        current = new EditorView(null, this, stackmachine);
         add( current,BorderLayout.CENTER);
         revalidate();
     }
@@ -154,6 +154,8 @@ public class MainFrame extends JFrame implements EditorActions{
         }
     }
 
+
+
     @Override
     public void fullScreenMode() {
         dispose();
@@ -189,16 +191,38 @@ public class MainFrame extends JFrame implements EditorActions{
         this.current.toPrevMethod();
     }
 
+    @Override
+    public void openMenu(String name) {
+        this.current.openMenu(name);
+    }
 
-    public MainFrame()  {
+    @Override
+    public void sendMenuCommand(String command) {
+        this.current.sendMenuCommand(command);
+    }
+
+    @Override
+    public void closeMenu() {
+        this.current.closeMenu();
+        this.returnCommandContext();
+    }
+
+    @Override
+    public void registerMenuFunction(String menuName, String name, String function) {
+        this.current.registerMenuFunction( menuName,name, function);
+    }
+
+
+    public MainFrame() throws IOException {
 
         this.customCommandMode = new CustomCommandMode();
         setLayout(new BorderLayout());
+        stackmachine = new Stackmachine(this);
         clearBuffer();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setSize(800 , 600);
-        Inter stackmachine = new Stackmachine(this);
+
        commandView = new CommandView(this, stackmachine);
        this.commandMode = commandView;
        updateStatusView();
@@ -245,5 +269,6 @@ public class MainFrame extends JFrame implements EditorActions{
         add(commandView, BorderLayout.SOUTH);
 
         setVisible(true);
+        stackmachine.runCommand("start");
     }
 }

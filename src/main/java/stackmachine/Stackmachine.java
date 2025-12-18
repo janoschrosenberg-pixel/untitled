@@ -3,9 +3,13 @@ package stackmachine;
 
 
 import editor.EditorActions;
+import editor.Menu;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,7 +28,7 @@ public class Stackmachine implements Inter{
 
 
     private final EditorActions editorActions;
-    public Stackmachine(EditorActions editorActions) {
+    public Stackmachine(EditorActions editorActions) throws IOException {
         this.editorActions = editorActions;
         try {
             StackUtils.readLines(KEYBINDING_PATH, str -> keyBindings.add(KeyBinding.parse(str)));
@@ -35,9 +39,22 @@ public class Stackmachine implements Inter{
         BuildInFunctions.addToMap(runnableMap, editorActions, this.stack);
 
 
+
+
+       Map<String, List<String>> loadedCommands = StackUtils.parseFileByColonSections(Paths.get("stacks/ini"));
+
+        for(String key: loadedCommands.keySet()) {
+            List<StackCommand> commands = loadedCommands.get(key).stream().map(this::convert).toList();
+            Runnable runnable = () -> commands.forEach(this::handleCommand);
+            var newKey = key.substring(1);
+            runnableMap.put(newKey, runnable);
+            wordMap.put(newKey, commands);
+        }
+
         for(KeyBinding keyBinding: keyBindings) {
             this.editorActions.bind(keyBinding.key(),keyBinding.mode(), runnableMap.get(keyBinding.method()));
         }
+
     }
 
     @Override
@@ -54,10 +71,33 @@ public class Stackmachine implements Inter{
         }
     }
 
+    @Override
+    public void push(Object o) {
+        this.stack.push(o);
+    }
+
+    @Override
+    public void runCommand(String command) {
+        this.runnableMap.get(command).run();
+    }
+
     private void handleCommands(List<StackCommand> stackCommands) {
         for(StackCommand stackCommand: stackCommands) {
             handleCommand(stackCommand);
         }
+    }
+
+    private StackCommand convert(String input) {
+        String[] parts = input.trim().split("\\s+");
+        var opcode = Opcode.fromString(parts[0]);
+
+        String value = null;
+
+        if(parts.length == 2) {
+            value = parts[1];
+        }
+
+        return new StackCommand(opcode, value);
     }
 
     private void handleCommand(StackCommand stackCommand) {
@@ -173,8 +213,8 @@ public class Stackmachine implements Inter{
                 if(sc.value() != null) {
                     sb.append(" ");
                     sb.append(sc.value());
-                    sb.append("\n");
                 }
+                sb.append("\n");
             }
 
         }

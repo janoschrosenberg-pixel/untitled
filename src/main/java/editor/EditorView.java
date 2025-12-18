@@ -1,15 +1,24 @@
 package editor;
 
+import stackmachine.Inter;
+
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-
+import java.util.*;
 import java.util.List;
 
 public class EditorView extends ViewComponent {
 
     private final List<Line> lines;
+
+    private final Stack<Menu> menuStack = new Stack<>();
+
+    private static final Map<String, Menu> menuMap = new HashMap<>();
+
+    static {
+        menuMap.put("FILEMENU", new FileMenu());
+    }
 
     private static final int CHAR_LENGTH = 10;
 
@@ -33,7 +42,7 @@ public class EditorView extends ViewComponent {
         }
     }
 
-    public EditorView(List<Line> lines, EditorActions editorActions) {
+    public EditorView(List<Line> lines, EditorActions editorActions, Inter stackmachine) {
 
 
         if(lines == null) {
@@ -45,11 +54,25 @@ public class EditorView extends ViewComponent {
 
         this.editorActions = editorActions;
         scrollHandler.updateMethodInfos(this.lines);
+
+
+        // menus
+    for(var key:menuMap.keySet()) {
+        menuMap.get(key).setInter(stackmachine);
     }
+    }
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if(!menuStack.isEmpty()) {
+            menuStack.peek().paint(g);
+            return;
+        }
+
 
         int y = 0;
 
@@ -197,5 +220,28 @@ public void clearSelection() {
     public void toPrevWord() {
         scrollHandler.setCursorToPreviousToken(lines);
         repaint();
+    }
+
+    public void openMenu(String name) {
+        this.menuStack.push( this.menuMap.get(name));
+        repaint();
+    }
+
+    public void sendMenuCommand(String command) {
+        if(!this.menuStack.isEmpty()) {
+            this.menuStack.peek().fireMenuCommand(command);
+        }
+        repaint();
+    }
+
+    public void closeMenu() {
+        if(!this.menuStack.isEmpty()) {
+            this.menuStack.pop();
+        }
+        repaint();
+    }
+
+    public void registerMenuFunction(String menuName,String name, String function) {
+        menuMap.get(menuName).registerFunction(name, function);
     }
 }

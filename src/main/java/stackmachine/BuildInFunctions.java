@@ -20,6 +20,32 @@ public enum BuildInFunctions {
         CURSOR_PREV_METHOD((e,s)->e::toPrevMethod),
         CURSOR_NEXT_METHOD((e,s)->e::toNextMethod),
 
+        OPEN_MENU((e,s)->
+
+            ()-> {
+                String menuName = s.pop().toString();
+                e.openMenu(menuName);
+                e.setEditorMode(menuName);
+                e.switchToCustomMode();
+            }
+        ),
+    REGISTER_MENU_FUNCTION((e,s)->
+            ()-> {
+                String menuName = s.pop().toString();
+                String name = s.pop().toString();
+                String function = s.pop().toString();
+                e.registerMenuFunction(menuName, name, function);
+            }
+    ),
+
+        SEND_MENU_COMMAND((e,s)->
+
+            ()-> {
+                String commandName = s.pop().toString();
+                e.sendMenuCommand(commandName);
+            }
+        ),
+        CLOSE_MENU((e,s)-> e::closeMenu),
         FULLSCREEN((e, s)->e::fullScreenMode);
 
         private final BiFunction<editor.EditorActions,Stack<Object>, Runnable> function;

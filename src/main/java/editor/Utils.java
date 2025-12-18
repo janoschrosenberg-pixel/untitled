@@ -4,6 +4,8 @@ import parser.MethodScannerUtil;
 import stackmachine.StackUtils;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -133,5 +135,11 @@ public class Utils {
 
         // Neue Farbe aus HSB-Werten erstellen
         return Color.getHSBColor(newHue, hsbVals[1], hsbVals[2]);
+    }
+
+    public static int stringWidth(String text, Font font) {
+        FontRenderContext frc =
+                new FontRenderContext(new AffineTransform(), true, true);
+        return (int) font.getStringBounds(text, frc).getWidth();
     }
 }
