@@ -3,8 +3,7 @@ package editor;
 import stackmachine.Inter;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
+
 import java.util.*;
 import java.util.List;
 
@@ -28,20 +27,7 @@ public class EditorView extends ViewComponent {
     private final EditorActions editorActions;
 
     public final static int lineHeight = 18;
-
-    Font customFont;
-    {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("Courier Prime Code.ttf");
-
-        // Font erzeugen
-        try {
-            assert is != null;
-            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(16f);
-        } catch (FontFormatException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    Font monoFont = new Font("Monospaced", Font.PLAIN, 20);
     public EditorView(List<Line> lines, EditorActions editorActions, Inter stackmachine) {
 
 
@@ -73,13 +59,15 @@ public class EditorView extends ViewComponent {
             return;
         }
 
+        g.setFont(monoFont);
 
         int y = 0;
 
         int visibleLines = getHeight() / lineHeight;
-        g.setFont(customFont);
+
         FontMetrics fm = g.getFontMetrics();  // aktuelle Font
         int charWidth = fm.charWidth('M');    // Breite eines Zeichens
+
 
         g.setColor(Color.BLACK);
         g.fillRect(0,0, getWidth(),getHeight());
