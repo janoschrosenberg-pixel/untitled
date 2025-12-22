@@ -6,7 +6,8 @@ import java.util.function.BiFunction;
 
 public enum BuildInFunctions {
         CHANGE_EDITOR_MODE((e,s)-> ()-> e.setEditorMode(s.pop().toString())),
-        PREV_MODE((e,s)->e::returnCommandContext),
+    FIND_DEFINITION((e,s)->e::findDefinition),
+    PREV_MODE((e,s)->e::returnCommandContext),
         COMMAND_MODE((e, s)->e::switchToCommandMode),
         EDITOR_MODE((e, s)->e::switchToEditorMode),
         CURSOR_UP((e, s)->()->e.moveCursorUp(1)),
@@ -35,6 +36,14 @@ public enum BuildInFunctions {
                 String name = s.pop().toString();
                 String function = s.pop().toString();
                 e.registerMenuFunction(menuName, name, function);
+            }
+    ),
+
+    REGISTER_WORKSPACE_AND_START_LANG_SERVER((e,s)->
+            ()-> {
+                String workspace = s.pop().toString();
+                e.registerWorkspace(workspace);
+                e.startLanguageServer();
             }
     ),
 

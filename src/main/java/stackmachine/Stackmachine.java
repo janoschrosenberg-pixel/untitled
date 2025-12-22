@@ -130,7 +130,7 @@ public class Stackmachine implements Inter{
             }
 
             case EXIT -> {
-                System.exit(0);
+                this.editorActions.exit();
             }
 
             case LOAD_FILE -> {

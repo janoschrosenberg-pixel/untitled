@@ -32,7 +32,12 @@ public class CustomCommandMode implements EditorCommands{
 
     @Override
     public void appendChar(char sign) {
-        typeCommand(sign+"");
+
+        if(sign == ' ') {
+            typeCommand("space");
+        }else{
+            typeCommand(sign+"");
+        }
     }
 
     private void typeCommand(String sign) {
@@ -51,6 +56,8 @@ public class CustomCommandMode implements EditorCommands{
     public void enter() {
         typeCommand("enter");
     }
+
+
 
     @Override
     public void ctrlPressed() {

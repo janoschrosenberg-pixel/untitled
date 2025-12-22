@@ -91,10 +91,11 @@ public class JdtLsGotoDefinition {
         );
     }
 
-    public void findDefinition(int row, int col, String fileName) throws ExecutionException, InterruptedException {
+    public GoTo findDefinition(int row, int col, String fileName) throws ExecutionException, InterruptedException {
         String filePath = this.workspace +
                 fileName;
-        String fileUri = "file://" + filePath;
+        String uriPrefix = "file://";
+        String fileUri = uriPrefix + filePath;
 
         DefinitionParams dp = new DefinitionParams(
                 new TextDocumentIdentifier(fileUri),
@@ -112,19 +113,19 @@ public class JdtLsGotoDefinition {
         // ------------------------------------------------------------
         if (result.isLeft()) {
             List<? extends Location> locs = result.getLeft();
-            System.out.println("Definition Locations:");
             for (Location loc : locs) {
-                System.out.println(loc.getUri() + " @ " + loc.getRange());
+
+                return new GoTo(loc.getUri().substring(uriPrefix.length()), loc.getRange().getStart().getLine(), loc.getRange().getStart().getCharacter());
             }
         }
 
         if (result.isRight()) {
             List<? extends LocationLink> links = result.getRight();
-            System.out.println("Definition LocationLinks:");
             for (LocationLink link : links) {
-                System.out.println(link.getTargetUri() + " @ " + link.getTargetRange());
+                return new GoTo(link.getTargetUri().substring(uriPrefix.length()), link.getTargetRange().getStart().getLine(), link.getTargetRange().getStart().getCharacter());
             }
         }
+        return null;
     }
 
     public static void main(String[] args) throws Exception {
@@ -141,5 +142,10 @@ public class JdtLsGotoDefinition {
         jdtLsGotoDefinition.findDefinition(2, 27, "/src/main/java/Tester.java");
 
         jdtLsGotoDefinition.shutdownServer();
+    }
+
+
+    public String getWorkspace() {
+        return this.workspace;
     }
 }

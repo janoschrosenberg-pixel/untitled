@@ -37,4 +37,13 @@ public interface EditorActions {
     void closeMenu();
 
     void registerMenuFunction(String menuName, String name, String function);
+
+    void registerWorkspace(String path);
+
+    void startLanguageServer();
+
+    void findDefinition();
+
+
+    void exit();
 }

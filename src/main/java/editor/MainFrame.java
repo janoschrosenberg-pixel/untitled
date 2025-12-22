@@ -1,5 +1,7 @@
 package editor;
 
+import lsp.GoTo;
+import lsp.JdtLsGotoDefinition;
 import stackmachine.Inter;
 import stackmachine.StackUtils;
 import stackmachine.Stackmachine;
@@ -11,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainFrame extends JFrame implements EditorActions{
     private final Map<String,  EditorView> views = new HashMap<>();
@@ -20,6 +23,7 @@ public class MainFrame extends JFrame implements EditorActions{
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
 
+    private JdtLsGotoDefinition langServer = new JdtLsGotoDefinition();
     private EditorCommands commandMode;
 
     private final CustomCommandMode customCommandMode;
@@ -49,8 +53,13 @@ public class MainFrame extends JFrame implements EditorActions{
 
         add( newView,BorderLayout.CENTER);
         current = newView;
-        switchToEditorMode();
+        switchToCustomMode();
         revalidate();
+        try {
+            this.langServer.openFile(path.substring(langServer.getWorkspace().length()));
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -212,6 +221,55 @@ public class MainFrame extends JFrame implements EditorActions{
         this.current.registerMenuFunction( menuName,name, function);
     }
 
+    @Override
+    public void registerWorkspace(String path) {
+        try {
+            StackUtils.writeLinesToFile(List.of(path), "workspace.txt");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        langServer.setWorkspace(path);
+    }
+
+    @Override
+    public void startLanguageServer() {
+        try {
+            langServer.startServer();
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void findDefinition() {
+       int row = this.current.getCurrentSelectedRow();
+       int col = this.current.getCurrentSelectedColumn();
+        try {
+            GoTo dest= this.langServer.findDefinition(row, col, this.currentFilename.substring(this.langServer.getWorkspace().length()));
+
+            if(dest != null) {
+                System.out.println(dest.file());
+                loadFile(dest.file());
+                this.current.setRow(dest.row());
+                this.current.setColumn(dest.col());
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void exit() {
+        try {
+            if(this.langServer.getWorkspace() != null) {
+                this.langServer.shutdownServer();
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.exit(0);
+    }
+
 
     public MainFrame() throws IOException {
 
@@ -270,5 +328,12 @@ public class MainFrame extends JFrame implements EditorActions{
 
         setVisible(true);
         stackmachine.runCommand("start");
+
+        StackUtils.readLines("workspace.txt", this.langServer::setWorkspace);
+        try {
+            this.langServer.startServer();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

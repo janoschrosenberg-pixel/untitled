@@ -217,6 +217,16 @@ public void clearSelection() {
         repaint();
     }
 
+    public void setRow(int row) {
+        scrollHandler.setRow(row);
+        repaint();
+    }
+
+    public void setColumn(int column) {
+        scrollHandler.setColumn(column);
+        repaint();
+    }
+
     public void toPrevWord() {
         scrollHandler.setCursorToPreviousToken(lines);
         repaint();
@@ -243,5 +253,13 @@ public void clearSelection() {
 
     public void registerMenuFunction(String menuName,String name, String function) {
         menuMap.get(menuName).registerFunction(name, function);
+    }
+
+    public int getCurrentSelectedRow() {
+        return this.scrollHandler.getCurserRow();
+    }
+
+    public int getCurrentSelectedColumn() {
+        return this.scrollHandler.getCurserCol();
     }
 }

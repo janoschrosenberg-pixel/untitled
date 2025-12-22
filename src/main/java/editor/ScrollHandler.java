@@ -350,5 +350,14 @@ public class ScrollHandler {
 
 
     }
+
+    public void setRow(int row) {
+        this.curserRow = row;
+        revalidateScollDown();
+    }
+
+    public void setColumn(int column) {
+        this.curserCol = column;
+    }
 }
 

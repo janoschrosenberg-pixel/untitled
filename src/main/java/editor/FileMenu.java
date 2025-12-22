@@ -62,7 +62,18 @@ public class FileMenu extends Menu{
             case "right" -> right();
             case "select" -> select();
             case "back" -> back();
-            
+            case "selectFolder" -> selectFolder();
+        }
+    }
+
+    private void selectFolder() {
+        var selectedFile = fileNames.get(row).get(column);
+        if(selectedFile.isDirectory()) {
+            super.inter.push(selectedFile.getPath());
+            String onSelectFunction = super.menufunctions.get("onSelectFolder");
+            if(onSelectFunction != null) {
+                super.inter.executeCommand(onSelectFunction);
+            }
         }
     }
 
