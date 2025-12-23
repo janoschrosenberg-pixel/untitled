@@ -9,6 +9,8 @@ public class CustomCommandMode implements EditorCommands{
     private final HashMap<String, Map<String, Runnable>> bindingMap = new HashMap<>();
     private final Stack<String> mode = new Stack<>();
 
+    private TempBuffer tempBuffer = TempBuffer.INSTANCE;
+
     CustomCommandMode(){
         mode.push("normal");
     }
@@ -32,6 +34,11 @@ public class CustomCommandMode implements EditorCommands{
 
     @Override
     public void appendChar(char sign) {
+
+        if(this.mode.peek().startsWith("insert")) {
+            this.tempBuffer.add(sign);
+            return;
+        }
 
         if(sign == ' ') {
             typeCommand("space");

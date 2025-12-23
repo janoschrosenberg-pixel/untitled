@@ -9,6 +9,7 @@ l:normal:CURSOR_RIGHT
 j:normal:CURSOR_LEFT
 g:normal:FIND_DEFINITION
 esc:FILEMENU:CLOSE_MENU
+esc:LISTMENU:CLOSE_MENU
 i:normal:CURSOR_UP
 i:FILEMENU:menu_up
 k:FILEMENU:menu_down
@@ -17,3 +18,6 @@ l:FILEMENU:menu_right
 h:FILEMENU:menu_back
 space:FILEMENU:menu_select_folder
 enter:FILEMENU:menu_select
+i:LISTMENU:menu_up
+k:LISTMENU:menu_down
+enter:LISTMENU:menu_select

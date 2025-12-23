@@ -6,8 +6,8 @@ import java.util.function.BiFunction;
 
 public enum BuildInFunctions {
         CHANGE_EDITOR_MODE((e,s)-> ()-> e.setEditorMode(s.pop().toString())),
-    FIND_DEFINITION((e,s)->e::findDefinition),
-    PREV_MODE((e,s)->e::returnCommandContext),
+        FIND_DEFINITION((e,s)->e::findDefinition),
+        PREV_MODE((e,s)->e::returnCommandContext),
         COMMAND_MODE((e, s)->e::switchToCommandMode),
         EDITOR_MODE((e, s)->e::switchToEditorMode),
         CURSOR_UP((e, s)->()->e.moveCursorUp(1)),
@@ -54,6 +54,7 @@ public enum BuildInFunctions {
                 e.sendMenuCommand(commandName);
             }
         ),
+        JAVA_FILES_2_STACK((e,s) -> e::javaFiles2Stack),
         CLOSE_MENU((e,s)-> e::closeMenu),
         FULLSCREEN((e, s)->e::fullScreenMode);
 

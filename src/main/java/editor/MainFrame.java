@@ -1,5 +1,7 @@
 package editor;
 
+import indexer.JavaFileIndex;
+import indexer.JavaFileScanner;
 import lsp.GoTo;
 import lsp.JdtLsGotoDefinition;
 import stackmachine.Inter;
@@ -11,6 +13,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,6 +22,7 @@ public class MainFrame extends JFrame implements EditorActions{
     private final Map<String,  EditorView> views = new HashMap<>();
     private EditorView current;
     private String currentFilename = "NEW_FILE";
+    private JavaFileIndex index = new JavaFileIndex();
     Inter stackmachine;
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
@@ -270,6 +274,11 @@ public class MainFrame extends JFrame implements EditorActions{
         System.exit(0);
     }
 
+    @Override
+    public void javaFiles2Stack() {
+        index.snapshot().forEach(stackmachine::push);
+    }
+
 
     public MainFrame() throws IOException {
 
@@ -335,5 +344,7 @@ public class MainFrame extends JFrame implements EditorActions{
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        JavaFileScanner.scan(Path.of(this.langServer.getWorkspace()), index);
     }
 }

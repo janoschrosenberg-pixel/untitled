@@ -17,6 +17,7 @@ public class EditorView extends ViewComponent {
 
     static {
         menuMap.put("FILEMENU", new FileMenu());
+        menuMap.put("LISTMENU", new ListMenu());
     }
 
     private static final int CHAR_LENGTH = 10;

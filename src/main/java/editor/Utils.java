@@ -15,6 +15,26 @@ import java.util.List;
 import java.util.function.ToIntFunction;
 
 public class Utils {
+    private static final String OS =
+            System.getProperty("os.name").toLowerCase();
+    public static boolean isWindows() {
+        return OS.contains("win");
+    }
+
+    public static boolean isLinux() {
+        return OS.contains("linux");
+    }
+
+    public static String getOsConfig() {
+        if(isWindows()) {
+            return "config_win";
+        }
+        if(isLinux()) {
+            return "config_linux";
+        }
+        return "config_mac";
+    }
+
     public static List<Line> loadResourceFile(String resourceName) throws IOException {
         List<Line> lines = new ArrayList<>();
 

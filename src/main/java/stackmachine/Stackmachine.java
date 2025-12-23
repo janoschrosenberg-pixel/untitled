@@ -220,4 +220,14 @@ public class Stackmachine implements Inter{
         }
         return sb.toString();
     }
+
+    public List<Object> getStackObjects() {
+        List<Object> objects = new ArrayList<>();
+
+        while(!stack.isEmpty()){
+            objects.add(stack.pop());
+        }
+
+        return objects;
+    }
 }

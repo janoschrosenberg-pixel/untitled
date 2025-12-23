@@ -6,6 +6,7 @@ import editor.filemenu.ParentFile;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -16,6 +17,7 @@ public class FileMenu extends Menu{
     private int column = 0;
     private int row = 0;
 
+    private File[] rootFiles;
 
     private Stack<ParentFile> parentFiles = new Stack<>();
 
@@ -23,7 +25,9 @@ public class FileMenu extends Menu{
     private File[] currentFiles;
     public FileMenu() {
         this.currentFiles = File.listRoots();
+        this.rootFiles =  File.listRoots();
         updateFilenames();
+
     }
 
     private int currentWidth = 100;
@@ -188,7 +192,12 @@ public class FileMenu extends Menu{
          int size = 0;
 
          for(int j=0; j<line.size(); j++) {
-             String text = line.get(j).getName()+" ";
+             File f = line.get(j);
+             String text = f.getName()+" ";
+
+             if(Arrays.stream(rootFiles).toList().contains(f)) {
+                 text = f.getPath()+" ";
+             }
 
              if(i==row && j==column) {
                  g.setColor(Color.RED);

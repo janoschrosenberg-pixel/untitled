@@ -1,5 +1,6 @@
 package lsp;
 
+import editor.Utils;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -34,7 +35,7 @@ public class JdtLsGotoDefinition {
                 "-Dlog.level=ALL",
                 "-noverify",
                 "-jar", "plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
-                "-configuration", "config_linux",
+                "-configuration", Utils.getOsConfig(),
                 "-data", this.workspace
         )
                 .redirectError(ProcessBuilder.Redirect.INHERIT)

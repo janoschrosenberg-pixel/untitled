@@ -46,4 +46,6 @@ public interface EditorActions {
 
 
     void exit();
+
+    void javaFiles2Stack();
 }
