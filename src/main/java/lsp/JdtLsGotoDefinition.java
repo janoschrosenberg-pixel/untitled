@@ -36,7 +36,7 @@ public class JdtLsGotoDefinition {
                 "-Declipse.product=org.eclipse.jdt.ls.core.product",
                 "-Dlog.level=ALL",
                 "-noverify",
-                "-jar", "plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
+                "-jar", "org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                 "-configuration", Utils.getOsConfig(),
                 "-data", this.workspace
         )
