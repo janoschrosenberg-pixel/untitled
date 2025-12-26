@@ -9,7 +9,9 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -58,8 +60,8 @@ public class JdtLsGotoDefinition {
         // ------------------------------------------------------------
         InitializeParams init = new InitializeParams();
         init.setProcessId((int) ProcessHandle.current().pid());
-        init.setRootUri("file://" +
-                this.workspace);
+
+        init.setRootUri(Paths.get( this.workspace).toUri().toString());
 
         // Minimale Client-Capabilities (sonst sendet JDT-LS nichts!)
         ClientCapabilities caps = new ClientCapabilities();
@@ -69,7 +71,7 @@ public class JdtLsGotoDefinition {
         init.setCapabilities(caps);
 
         server.initialize(init).get();
-
+        server.initialized(new InitializedParams());
     }
 
     public void shutdownServer() throws ExecutionException, InterruptedException {
@@ -78,11 +80,12 @@ public class JdtLsGotoDefinition {
     }
 
     public void openFile(String fileName) throws InterruptedException, IOException {
-        String filePath = this.workspace +
-                fileName;
-        String fileUri = "file://" + filePath;
 
-        String content = Files.readString(Paths.get(filePath));
+        Path path = Paths.get(fileName);
+
+        String fileUri = path.toUri().toString();
+
+        String content = Files.readString(path);
 
         TextDocumentItem item =
                 new TextDocumentItem(fileUri, "java", 1, content);
@@ -93,10 +96,8 @@ public class JdtLsGotoDefinition {
     }
 
     public GoTo findDefinition(int row, int col, String fileName) throws ExecutionException, InterruptedException {
-        String filePath = this.workspace +
-                fileName;
-        String uriPrefix = "file://";
-        String fileUri = uriPrefix + filePath;
+        Path path = Paths.get(fileName);
+        String fileUri = path.toUri().toString();
 
         DefinitionParams dp = new DefinitionParams(
                 new TextDocumentIdentifier(fileUri),
@@ -115,15 +116,16 @@ public class JdtLsGotoDefinition {
         if (result.isLeft()) {
             List<? extends Location> locs = result.getLeft();
             for (Location loc : locs) {
-
-                return new GoTo(loc.getUri().substring(uriPrefix.length()), loc.getRange().getStart().getLine(), loc.getRange().getStart().getCharacter());
+                Path currentPath = Paths.get(URI.create(loc.getUri()));
+                return new GoTo(currentPath.toString(), loc.getRange().getStart().getLine(), loc.getRange().getStart().getCharacter());
             }
         }
 
         if (result.isRight()) {
             List<? extends LocationLink> links = result.getRight();
             for (LocationLink link : links) {
-                return new GoTo(link.getTargetUri().substring(uriPrefix.length()), link.getTargetRange().getStart().getLine(), link.getTargetRange().getStart().getCharacter());
+                Path currentPath = Paths.get(URI.create(link.getTargetUri()));
+                return new GoTo(currentPath.toString(), link.getTargetRange().getStart().getLine(), link.getTargetRange().getStart().getCharacter());
             }
         }
         return null;

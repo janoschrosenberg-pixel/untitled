@@ -60,7 +60,7 @@ public class MainFrame extends JFrame implements EditorActions{
         switchToCustomMode();
         revalidate();
         try {
-            this.langServer.openFile(path.substring(langServer.getWorkspace().length()));
+            this.langServer.openFile(path);
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -249,7 +249,7 @@ public class MainFrame extends JFrame implements EditorActions{
        int row = this.current.getCurrentSelectedRow();
        int col = this.current.getCurrentSelectedColumn();
         try {
-            GoTo dest= this.langServer.findDefinition(row, col, this.currentFilename.substring(this.langServer.getWorkspace().length()));
+            GoTo dest= this.langServer.findDefinition(row, col, this.currentFilename);
 
             if(dest != null) {
                 System.out.println(dest.file());
@@ -345,6 +345,8 @@ public class MainFrame extends JFrame implements EditorActions{
             throw new RuntimeException(e);
         }
 
-        JavaFileScanner.scan(Path.of(this.langServer.getWorkspace()), index);
+        var path = Path.of(this.langServer.getWorkspace());
+        System.out.println(path);
+        JavaFileScanner.scan(path, index);
     }
 }

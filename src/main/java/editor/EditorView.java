@@ -20,15 +20,16 @@ public class EditorView extends ViewComponent {
         menuMap.put("LISTMENU", new ListMenu());
     }
 
-    private static final int CHAR_LENGTH = 10;
+
 
     private final ScrollHandler scrollHandler = new ScrollHandler();
 
-    private final  int charHeight = 18;
+
     private final EditorActions editorActions;
 
-    public final static int lineHeight = 18;
-    Font monoFont = new Font("Monospaced", Font.PLAIN, 20);
+    public final static int lineHeight = 16;
+    private final  int charHeight = lineHeight;
+    Font monoFont = new Font(Font.MONOSPACED, Font.PLAIN, lineHeight);
     public EditorView(List<Line> lines, EditorActions editorActions, Inter stackmachine) {
 
 
@@ -75,10 +76,10 @@ public class EditorView extends ViewComponent {
         var selection = scrollHandler.getSelection();
         if(selection != null) {
             g.setColor(Color.DARK_GRAY);
-            var width = Math.abs(selection.toColumn()-selection.fromColumn()) * CHAR_LENGTH;
+            var width = Math.abs(selection.toColumn()-selection.fromColumn()) * charWidth;
             var height = (selection.toLine()-selection.fromLine()+1) * lineHeight;
 
-            g.fillRect(selection.fromColumn()*CHAR_LENGTH+30, (selection.fromLine()-scrollHandler.getTopLine()) * lineHeight+5, width, height);
+            g.fillRect(selection.fromColumn()*charWidth+30, (selection.fromLine()-scrollHandler.getTopLine()) * lineHeight+5, width, height);
         }
         for (int i = 0; i < visibleLines; i++) {
             int lineIndex = scrollHandler.getTopLine() + i;
@@ -88,13 +89,11 @@ public class EditorView extends ViewComponent {
             Line line = lines.get(lineIndex);
 
 
-            g.setColor(Color.CYAN);
-            g.drawRect(scrollHandler.getCurserCol()*charWidth+30,
-                    (scrollHandler.getRelativeCourserRow())*charHeight+5,charWidth, charHeight );
+            g.setColor(Color.GREEN);
+            g.fillRect(scrollHandler.getCurserCol()*charWidth+30,
+                    (scrollHandler.getRelativeCourserRow()+1)*lineHeight,charWidth, 4 );
 
-
-
-
+            
             line.drawText(g, 30, y + lineHeight, selection, lineIndex);
 
 
