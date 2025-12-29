@@ -20,8 +20,6 @@ public class EditorView extends ViewComponent {
         menuMap.put("LISTMENU", new ListMenu());
     }
 
-
-
     private final ScrollHandler scrollHandler = new ScrollHandler();
 
 
@@ -95,7 +93,6 @@ public class EditorView extends ViewComponent {
 
             
             line.drawText(g, 30, y + lineHeight, selection, lineIndex);
-
 
             g.setColor(lineIndex==scrollHandler.getCurserRow()?Color.GREEN:Color.lightGray);
             g.drawString((lineIndex+1)+"", 0, y + lineHeight);

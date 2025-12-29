@@ -38,6 +38,13 @@ public enum BuildInFunctions {
                 e.registerMenuFunction(menuName, name, function);
             }
     ),
+    REGISTER_KEY_LISTENER((e,s)->
+            ()-> {
+                String mode = s.pop().toString();
+                String function = s.pop().toString();
+                e.registerKeyListener(mode, function);
+            }
+    ),
 
     REGISTER_WORKSPACE_AND_START_LANG_SERVER((e,s)->
             ()-> {

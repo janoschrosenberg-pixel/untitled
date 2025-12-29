@@ -1,19 +1,28 @@
 package editor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import stackmachine.Inter;
+
+import java.util.*;
 
 public class CustomCommandMode implements EditorCommands{
 
     private final HashMap<String, Map<String, Runnable>> bindingMap = new HashMap<>();
     private final Stack<String> mode = new Stack<>();
 
-    private TempBuffer tempBuffer = TempBuffer.INSTANCE;
+    private final TempBuffer tempBuffer = TempBuffer.INSTANCE;
 
+    private Map<String, List<String>> listener = new HashMap<>();
+
+    private Inter inter;
     CustomCommandMode(){
         mode.push("normal");
+
     }
+
+    public void setStackMachine(Inter inter){
+        this.inter = inter;
+    }
+
     public void bind(String key, String mode, Runnable command) {
         if(!bindingMap.containsKey(mode)) {
             bindingMap.put(mode, new HashMap<>());
@@ -30,13 +39,16 @@ public class CustomCommandMode implements EditorCommands{
 
     public void setMode(String mode) {
         this.mode.push(mode);
+
     }
 
     @Override
     public void appendChar(char sign) {
 
-        if(this.mode.peek().startsWith("insert")) {
+        String mode = this.mode.peek();
+        if(mode.startsWith("insert")) {
             this.tempBuffer.add(sign);
+            handleListeners(mode);
             return;
         }
 
@@ -45,6 +57,23 @@ public class CustomCommandMode implements EditorCommands{
         }else{
             typeCommand(sign+"");
         }
+
+
+    }
+
+    private void handleListeners(String mode) {
+        if(listener.containsKey(mode)) {
+            List<String> commands = listener.get(mode);
+            commands.forEach( this.inter::runCommand);
+        }
+    }
+
+    public void registerListener(String mode, String command) {
+        if(!this.listener.containsKey(mode)) {
+            this.listener.put(mode, new ArrayList<>());
+        }
+
+        this.listener.get(mode).add(command);
     }
 
     private void typeCommand(String sign) {
@@ -56,6 +85,12 @@ public class CustomCommandMode implements EditorCommands{
 
     @Override
     public void delChar() {
+        String mode = this.mode.peek();
+        if(mode.startsWith("insert")) {
+            this.tempBuffer.del();
+            handleListeners(mode);
+            return;
+        }
         typeCommand("del");
     }
 

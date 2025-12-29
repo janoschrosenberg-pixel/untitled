@@ -21,3 +21,5 @@ enter:FILEMENU:menu_select
 i:LISTMENU:menu_up
 k:LISTMENU:menu_down
 enter:LISTMENU:menu_select
+f:LISTMENU:filter_listmenu
+enter:insertLISTMENU:PREV_MODE

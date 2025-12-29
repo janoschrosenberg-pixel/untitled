@@ -12,7 +12,7 @@ public class JavaParserTokenizeExample {
 
     public static void main(String[] args) {
         String code = "int   xatan =  33;";
-        System.out.println(code.substring(1,3));
+
 
         JavaParser parser = new JavaParser(
                 new ParserConfiguration().setLanguageLevel(LanguageLevel.JAVA_21)

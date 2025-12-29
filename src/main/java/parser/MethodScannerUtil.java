@@ -45,7 +45,7 @@ public final class MethodScannerUtil {
      */
     public static List<MethodInfo> scan(String code) {
         var result = PARSER.parse(code).getResult();
-        if (result.isEmpty()) return List.of();
+        if (result.isEmpty()) return new ArrayList<>();
 
         return extractMethods(result.get());
     }

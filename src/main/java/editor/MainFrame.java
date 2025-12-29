@@ -4,6 +4,8 @@ import indexer.JavaFileIndex;
 import indexer.JavaFileScanner;
 import lsp.GoTo;
 import lsp.JdtLsGotoDefinition;
+import lsp.LSP;
+import lsp.TypescriptLSP;
 import stackmachine.Inter;
 import stackmachine.StackUtils;
 import stackmachine.Stackmachine;
@@ -27,10 +29,17 @@ public class MainFrame extends JFrame implements EditorActions{
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
 
-    private JdtLsGotoDefinition langServer = new JdtLsGotoDefinition();
+    private Tech tech = Tech.JAVA;
+    private Map<Tech, LSP> lsps = new HashMap<>();
+
+    {
+        lsps.put(Tech.JAVA,  new JdtLsGotoDefinition());
+        lsps.put(Tech.REACT, new TypescriptLSP());
+    }
+
     private EditorCommands commandMode;
 
-    private final CustomCommandMode customCommandMode;
+            private final CustomCommandMode customCommandMode;
 
     private final CommandView commandView;
 
@@ -60,7 +69,7 @@ public class MainFrame extends JFrame implements EditorActions{
         switchToCustomMode();
         revalidate();
         try {
-            this.langServer.openFile(path);
+            this.lsps.get(tech).openFile(path);
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -147,11 +156,13 @@ public class MainFrame extends JFrame implements EditorActions{
     @Override
     public void returnCommandContext() {
         this.customCommandMode.returnContext();
+        updateStatusView();
     }
 
     @Override
     public void setEditorMode(String mode) {
         this.customCommandMode.setMode(mode);
+        updateStatusView();
     }
 
     @Override
@@ -226,19 +237,28 @@ public class MainFrame extends JFrame implements EditorActions{
     }
 
     @Override
+    public void registerKeyListener(String mode, String function) {
+        this.customCommandMode.registerListener(mode, function);
+    }
+
+    @Override
     public void registerWorkspace(String path) {
         try {
-            StackUtils.writeLinesToFile(List.of(path), "workspace.txt");
+            StackUtils.writeLinesToFile(List.of(path), getWorkspaceFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        langServer.setWorkspace(path);
+        lsps.get(tech).setWorkspace(path);
+    }
+
+    private String getWorkspaceFile() {
+        return "workspace_"+tech.name()+".txt";
     }
 
     @Override
     public void startLanguageServer() {
         try {
-            langServer.startServer();
+            lsps.get(tech).startServer();
         } catch (IOException | ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -249,10 +269,9 @@ public class MainFrame extends JFrame implements EditorActions{
        int row = this.current.getCurrentSelectedRow();
        int col = this.current.getCurrentSelectedColumn();
         try {
-            GoTo dest= this.langServer.findDefinition(row, col, this.currentFilename);
+            GoTo dest= this.lsps.get(tech).findDefinition(row, col, this.currentFilename);
 
             if(dest != null) {
-                System.out.println(dest.file());
                 loadFile(dest.file());
                 this.current.setRow(dest.row());
                 this.current.setColumn(dest.col());
@@ -265,8 +284,8 @@ public class MainFrame extends JFrame implements EditorActions{
     @Override
     public void exit() {
         try {
-            if(this.langServer.getWorkspace() != null) {
-                this.langServer.shutdownServer();
+            if(this.lsps.get(tech).getWorkspace() != null) {
+                this.lsps.get(tech).shutdownServer();
             }
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -276,7 +295,12 @@ public class MainFrame extends JFrame implements EditorActions{
 
     @Override
     public void javaFiles2Stack() {
-        index.snapshot().forEach(stackmachine::push);
+        index.snapshot(tech).forEach(stackmachine::push);
+    }
+
+    @Override
+    public void switchTech(String tech) {
+
     }
 
 
@@ -285,6 +309,7 @@ public class MainFrame extends JFrame implements EditorActions{
         this.customCommandMode = new CustomCommandMode();
         setLayout(new BorderLayout());
         stackmachine = new Stackmachine(this);
+        this.customCommandMode.setStackMachine(this.stackmachine);
         clearBuffer();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -338,15 +363,21 @@ public class MainFrame extends JFrame implements EditorActions{
         setVisible(true);
         stackmachine.runCommand("start");
 
-        StackUtils.readLines("workspace.txt", this.langServer::setWorkspace);
+        for(Tech t:Tech.values()){
+            scanWorkspace(t);
+        }
+    }
+
+    private void scanWorkspace(Tech t) throws IOException {
+        var lsp = lsps.get(t);
+        StackUtils.readLines(getWorkspaceFile(), lsp::setWorkspace);
         try {
-            this.langServer.startServer();
+            lsp.startServer();
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        var path = Path.of(this.langServer.getWorkspace());
-        System.out.println(path);
-        JavaFileScanner.scan(path, index);
+        var path = Path.of(lsp.getWorkspace());
+        JavaFileScanner.scan(t, path, index);
     }
 }

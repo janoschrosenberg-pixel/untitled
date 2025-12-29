@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class JdtLsGotoDefinition {
+public class JdtLsGotoDefinition  implements LSP{
 
     private String workspace;
 
@@ -96,6 +96,10 @@ public class JdtLsGotoDefinition {
     }
 
     public GoTo findDefinition(int row, int col, String fileName) throws ExecutionException, InterruptedException {
+        return findDef(server, row, col, fileName);
+    }
+
+    public static GoTo findDef(LanguageServer server, int row, int col, String fileName) throws InterruptedException, ExecutionException {
         Path path = Paths.get(fileName);
         String fileUri = path.toUri().toString();
 

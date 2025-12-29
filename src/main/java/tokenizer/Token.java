@@ -1,5 +1,6 @@
 package tokenizer;
 
+
 import com.github.javaparser.JavaToken;
 
 import static tokenizer.Tokenizer.WHITESPACE;
@@ -39,5 +40,7 @@ public record Token(Tokenizer type, int start, int end) {
         assert range != null;
         return new Token(type, range.begin.column-1, range.end.column);
     }
+
+
 
 }

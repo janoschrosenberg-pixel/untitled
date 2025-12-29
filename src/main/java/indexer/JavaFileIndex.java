@@ -1,17 +1,26 @@
 package indexer;
 
+import editor.Tech;
+
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JavaFileIndex {
-    private final Set<Path> javaFiles =
-        ConcurrentHashMap.newKeySet();
 
-    void add(Path p)    { javaFiles.add(p); }
-    void remove(Path p){ javaFiles.remove(p); }
+    private Map<Tech,  Set<Path>> pathes = new HashMap<>();
 
-    public Set<Path> snapshot() {
-        return Set.copyOf(javaFiles);
+
+    void add(Tech t, Path p)    {
+        if(!pathes.containsKey(t)) {
+            pathes.put(t,  ConcurrentHashMap.newKeySet());
+        }
+        pathes.get(t).add(p);
+    }
+
+    public Set<Path> snapshot(Tech t) {
+        return Set.copyOf( pathes.get(t));
     }
 }

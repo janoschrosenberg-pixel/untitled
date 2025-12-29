@@ -9,6 +9,10 @@ public enum TempBuffer {
         sb = new StringBuilder();
     }
 
+    public String text(){
+        return sb.toString();
+    }
+
     public void add(char c) {
         sb.append(c);
     }

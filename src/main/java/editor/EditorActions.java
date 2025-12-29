@@ -37,7 +37,7 @@ public interface EditorActions {
     void closeMenu();
 
     void registerMenuFunction(String menuName, String name, String function);
-
+    void registerKeyListener(String mode, String function);
     void registerWorkspace(String path);
 
     void startLanguageServer();
@@ -48,4 +48,7 @@ public interface EditorActions {
     void exit();
 
     void javaFiles2Stack();
+
+    void switchTech(String tech);
+
 }

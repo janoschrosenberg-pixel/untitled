@@ -99,6 +99,9 @@ public class Line {
     public void drawText(Graphics g, int x, int y, Selection selection,int index) {
         String line = toString();
 
+        if(tokens.isEmpty() && !this.text.isEmpty()) {
+            g.drawString(this.text.toString(), x, y);
+        }
         for (Token t : tokens) {
             String frag = line.substring(t.start(), t.end());
             Color textColor = t.type().getTextColor();
