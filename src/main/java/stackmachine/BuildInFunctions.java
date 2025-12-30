@@ -63,6 +63,11 @@ public enum BuildInFunctions {
         ),
         JAVA_FILES_2_STACK((e,s) -> e::javaFiles2Stack),
         CLOSE_MENU((e,s)-> e::closeMenu),
+        SWITCH_TECH((e, s) -> ()-> {
+            String tech = s.pop().toString();
+            e.switchTech(tech);
+        }),
+        FORMAT_CODE((e,s)->e::formatCode),
         FULLSCREEN((e, s)->e::fullScreenMode);
 
         private final BiFunction<editor.EditorActions,Stack<Object>, Runnable> function;

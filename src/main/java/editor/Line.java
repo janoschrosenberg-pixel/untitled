@@ -3,6 +3,7 @@ package editor;
 import tokenizer.Token;
 import tokenizer.Tokenizer;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +17,18 @@ public class Line {
     public final StringBuilder text;
     public List<Token> tokens;
 
+    public void setTokens(List<Token> tokens){
+        this.tokens = tokens;
+    }
+
     public Line(String text) {
         this.text = new StringBuilder(text);
         tokens = Tokenizer.tokenize(text);
+    }
+
+    public Line(String text, List<Token> tokens) {
+        this.tokens = tokens;
+        this.text = new StringBuilder(text);
     }
 
     public Line() {
@@ -89,7 +99,9 @@ public class Line {
     }
 
     private void reparse() {
-        tokens = Tokenizer.tokenize(text.toString());
+        if(MainFrame.tech == Tech.JAVA) {
+            tokens = Tokenizer.tokenize(text.toString());
+        }
     }
 
     public List<Token> getTokens() {
@@ -99,8 +111,9 @@ public class Line {
     public void drawText(Graphics g, int x, int y, Selection selection,int index) {
         String line = toString();
 
-        if(tokens.isEmpty() && !this.text.isEmpty()) {
+        if((tokens.isEmpty() && !this.text.isEmpty()) || (MainFrame.tech == Tech.REACT && MainFrame.editMode)) {
             g.drawString(this.text.toString(), x, y);
+            return;
         }
         for (Token t : tokens) {
             String frag = line.substring(t.start(), t.end());

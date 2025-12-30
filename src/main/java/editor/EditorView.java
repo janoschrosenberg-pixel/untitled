@@ -1,5 +1,6 @@
 package editor;
 
+import formatter.CodeFormatter;
 import stackmachine.Inter;
 
 import java.awt.*;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class EditorView extends ViewComponent {
 
-    private final List<Line> lines;
+    private List<Line> lines;
 
     private final Stack<Menu> menuStack = new Stack<>();
 
@@ -163,9 +164,15 @@ public void clearSelection() {
 
     @Override
     public void ctrlPressed() {
+        voidUpdateTokensAndMenuInfos();
+    }
+
+    private void voidUpdateTokensAndMenuInfos() {
         scrollHandler.updateMethodInfos(lines);
+        editorActions.updateTokens();
         editorActions.switchToCustomMode();
     }
+
 
     @Override
     public void ctrlReleased() {
@@ -185,6 +192,16 @@ public void clearSelection() {
 
     public List<String> getLines() {
         return lines.stream().map(Line::toString).toList();
+    }
+
+
+    public void setLines(List<Line> lines){
+        this.lines = lines;
+        repaint();
+    }
+
+    public List<Line> getRealLines() {
+        return this.lines;
     }
 
     public void toNextWord() {
@@ -246,5 +263,12 @@ public void clearSelection() {
 
     public int getCurrentSelectedColumn() {
         return this.scrollHandler.getCurserCol();
+    }
+
+    public void formatCode() {
+        if(MainFrame.tech == Tech.REACT){
+            CodeFormatter.formatCode(lines);
+        }
+        voidUpdateTokensAndMenuInfos();
     }
 }

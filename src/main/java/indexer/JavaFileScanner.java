@@ -25,8 +25,8 @@ public class JavaFileScanner {
 
     public static void scan(Tech tech, Path root, JavaFileIndex index) throws IOException{
        switch(tech) {
-           case JAVA -> scan(tech,root, index, p -> p.getFileName().toString().endsWith(".java"));
-           case REACT -> scan(tech, root, index, p ->
+           case JAVA -> scan(Tech.JAVA,root, index, p -> p.getFileName().toString().endsWith(".java"));
+           case REACT -> scan(Tech.REACT, root, index, p ->
                    p.getFileName().toString().endsWith(".tsx") ||
                    p.getFileName().toString().endsWith(".ts") ||
                    p.getFileName().toString().endsWith(".jsx") ||
@@ -42,6 +42,7 @@ public class JavaFileScanner {
         return s.contains("/target/")
             || s.contains("/build/")
             || s.contains("/out/")
+            || s.contains("/node_modules/")
             || s.contains("/.gradle/");
     }
 }

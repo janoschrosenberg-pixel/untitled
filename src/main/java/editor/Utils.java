@@ -2,6 +2,7 @@ package editor;
 
 import parser.MethodScannerUtil;
 import stackmachine.StackUtils;
+import tokenizer.TokenUtils;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 public class Utils {
     private static final String OS =
@@ -41,6 +43,16 @@ public class Utils {
         StackUtils.readLines(resourceName, str -> lines.add(new Line(str)));
 
         return lines;
+    }
+
+    public static  List<Line> loadResourceFileReact(String resourceName) throws IOException{
+        String code = Files.readString(Path.of(resourceName));
+        return getReactLinesFromCode(code);
+    }
+
+    public static List<Line> getReactLinesFromCode(String code) throws IOException {
+        List<tokenizer.Line> lines = TokenUtils.tokenizeIntoLines(code);
+        return lines.stream().map(l -> new Line(l.lineText(), l.tokenList())).collect(Collectors.toList());
     }
 
     public static List<String> readLines(Path file) throws IOException {
@@ -83,8 +95,7 @@ public class Utils {
                 out.append(line.text).append('\n');
             }
 
-            return out.toString();
-
+            return out.toString().trim();
     }
 
 

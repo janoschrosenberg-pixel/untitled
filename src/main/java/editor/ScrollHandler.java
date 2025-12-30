@@ -212,7 +212,7 @@ public class ScrollHandler {
 
         revalidateScrollUp();
 
-        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+        this.selection = new Selection(curserRow, curserCol, curserRow, 0,  nextToken.end());
 
     }
     private void handleNextRow(List<Line> lines, int row, int relative) {
@@ -234,7 +234,7 @@ public class ScrollHandler {
 
         revalidateScollDown(relative);
 
-        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+        this.selection = new Selection(curserRow, curserCol, curserRow, 0,  nextToken.end());
 
     }
 
@@ -261,7 +261,7 @@ public class ScrollHandler {
 
         this.curserCol = nextToken.start();
         this.curserRow = row;
-        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+        this.selection = new Selection(curserRow, curserCol, curserRow, 0,  nextToken.end());
     }
 
 
@@ -287,7 +287,7 @@ public class ScrollHandler {
 
         this.curserCol = nextToken.start();
         this.curserRow = row;
-        this.selection = new Selection(curserRow, curserCol, curserRow,   nextToken.end());
+        this.selection = new Selection(curserRow, curserCol, curserRow, 0 , nextToken.end());
     }
 
     public void updateMethodInfos(List<Line> lines){
@@ -325,7 +325,8 @@ public class ScrollHandler {
         curserCol = next.startColumn() -1;
 
         revalidateScrollUp();
-        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length());
+
+        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length(), next.endColumn());
     }
 
     public void setCursorToNextMethodStart(List<Line> lines) {
@@ -346,7 +347,7 @@ public class ScrollHandler {
         curserCol = next.startColumn() -1;
 
         revalidateScollDown();
-        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length());
+        this.selection = new Selection(curserRow, curserCol, next.endLine()-1,  lines.get(next.bodyStartLine()-1).text.length(), next.endColumn());
 
 
     }

@@ -9,6 +9,7 @@ import lsp.TypescriptLSP;
 import stackmachine.Inter;
 import stackmachine.StackUtils;
 import stackmachine.Stackmachine;
+import tokenizer.TokenUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,8 +29,9 @@ public class MainFrame extends JFrame implements EditorActions{
     Inter stackmachine;
     private StringBuilder statusView = new StringBuilder();
     JLabel statusLabel = new JLabel();
+    public static boolean editMode = false;
 
-    private Tech tech = Tech.JAVA;
+    public static Tech tech = Tech.REACT;
     private Map<Tech, LSP> lsps = new HashMap<>();
 
     {
@@ -50,7 +52,14 @@ public class MainFrame extends JFrame implements EditorActions{
             newView = views.get(path);
         }else{
             try {
-                newView = new EditorView(Utils.loadResourceFile(path), this, stackmachine);
+                List<Line> lines;
+                if(tech == Tech.REACT) {
+                    lines = Utils.loadResourceFileReact(path);
+                }else{
+                    lines = Utils.loadResourceFile(path);
+                }
+
+                newView = new EditorView(lines, this, stackmachine);
             } catch (IOException e) {
                 e.printStackTrace();
                return;
@@ -74,6 +83,18 @@ public class MainFrame extends JFrame implements EditorActions{
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public void updateTokens() {
+        if(tech != Tech.REACT) {
+            return;
+        }
+        String code = Utils.mergeLines(current.getRealLines());
+        try {
+            current.setLines(Utils.getReactLinesFromCode(code));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void switchToCommandMode() {
@@ -89,12 +110,14 @@ public class MainFrame extends JFrame implements EditorActions{
         current.clearSelection();
         updateStatusView();
         revalidate();
+        editMode = true;
     }
 
     @Override
     public void  switchToCustomMode() {
         commandMode = customCommandMode;
         updateStatusView();
+        editMode = false;
     }
 
     @Override
@@ -299,8 +322,33 @@ public class MainFrame extends JFrame implements EditorActions{
     }
 
     @Override
-    public void switchTech(String tech) {
+    public void switchTech(String t) {
+        tech = Tech.valueOf(t);
 
+        var lsp = lsps.get(tech);
+
+        if(lsp.getWorkspace() == null) {
+            try {
+                scanWorkspace(tech);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+       if(!index.hasTech(tech)) {
+           try {
+               var path = Path.of(lsp.getWorkspace());
+               JavaFileScanner.scan(tech, path, index);
+           } catch (IOException e) {
+               throw new RuntimeException(e);
+           }
+       }
+
+    }
+
+    @Override
+    public void formatCode() {
+        current.formatCode();
     }
 
 
@@ -350,7 +398,9 @@ public class MainFrame extends JFrame implements EditorActions{
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
                 if (Character.isLetter(c) || Character.isDigit(c) ||
-                        List.of('.', ';', ' ', '.', ':', '-', '\'', '_', '\"')
+                        List.of('.', ';', ' ', '.', ':', '-',
+                                        '\'', '_', '\"',
+                                        '}', '{','[',']','/','=')
                                 .contains(c)) {
                     commandMode.appendChar(c);
                 }
@@ -363,9 +413,10 @@ public class MainFrame extends JFrame implements EditorActions{
         setVisible(true);
         stackmachine.runCommand("start");
 
-        for(Tech t:Tech.values()){
-            scanWorkspace(t);
-        }
+        scanWorkspace(tech);
+        var lsp = lsps.get(tech);
+        var path = Path.of(lsp.getWorkspace());
+        JavaFileScanner.scan(tech, path, index);
     }
 
     private void scanWorkspace(Tech t) throws IOException {
@@ -377,7 +428,5 @@ public class MainFrame extends JFrame implements EditorActions{
             throw new RuntimeException(e);
         }
 
-        var path = Path.of(lsp.getWorkspace());
-        JavaFileScanner.scan(t, path, index);
     }
 }

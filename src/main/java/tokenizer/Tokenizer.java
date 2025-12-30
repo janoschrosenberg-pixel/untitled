@@ -6,8 +6,10 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import editor.ColorUtils;
+import editor.MainFrame;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,8 @@ public enum Tokenizer {
     static JavaParser parser = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
     );
-    public static List<Token> tokenize(String code) {
+
+    private static List<Token> tokenizeJava(String code){
         List<Token> tokens = new ArrayList<>();
 
         ParseResult<CompilationUnit> result = parser.parse(code);
@@ -77,6 +80,26 @@ public enum Tokenizer {
         }
 
         return tokens;
+    }
+    public static List<Token> tokenize(String code) {
+        switch(MainFrame.tech) {
+            case JAVA -> {
+                return tokenizeJava(code);
+            }
+            case REACT -> {
+              return new ArrayList<>();
+            }
+
+        }
+       throw new IllegalStateException("kein tech");
+    }
+
+    private static List<Token> tokenizeReact(String code) {
+        try {
+            return TokenUtils.tokenize(code);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Color getTextColor() {

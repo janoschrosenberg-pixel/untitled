@@ -23,3 +23,4 @@ k:LISTMENU:menu_down
 enter:LISTMENU:menu_select
 f:LISTMENU:filter_listmenu
 enter:insertLISTMENU:PREV_MODE
+t:normal:FORMAT_CODE

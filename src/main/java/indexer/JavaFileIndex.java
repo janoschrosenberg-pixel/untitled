@@ -14,10 +14,15 @@ public class JavaFileIndex {
 
 
     void add(Tech t, Path p)    {
+
         if(!pathes.containsKey(t)) {
             pathes.put(t,  ConcurrentHashMap.newKeySet());
         }
         pathes.get(t).add(p);
+    }
+
+    public boolean hasTech(Tech t) {
+        return pathes.containsKey(t);
     }
 
     public Set<Path> snapshot(Tech t) {

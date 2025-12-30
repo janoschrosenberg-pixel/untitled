@@ -44,11 +44,12 @@ public interface EditorActions {
 
     void findDefinition();
 
-
+    void updateTokens();
     void exit();
 
     void javaFiles2Stack();
 
     void switchTech(String tech);
+    void formatCode();
 
 }

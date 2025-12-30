@@ -1,15 +1,19 @@
 package parser;
 
+import blocks.BlockUtils;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import editor.MainFrame;
+import editor.Tech;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class MethodScannerUtil {
 
@@ -44,6 +48,14 @@ public final class MethodScannerUtil {
      * Scannt Java-Code aus einem String.
      */
     public static List<MethodInfo> scan(String code) {
+        if(MainFrame.tech != Tech.JAVA) {
+            var blocks = BlockUtils.findBlocks(code);
+
+            return blocks.stream().map(block -> new MethodInfo("", "", block.startLine()+1,
+                block.startColumn()+1, block.endLine()+1, block.endColumn()+1, block.startLine()+1, block.startColumn()+1, block.endLine()+1, block.endColumn()+1
+                      )).collect(Collectors.toList());
+
+        }
         var result = PARSER.parse(code).getResult();
         if (result.isEmpty()) return new ArrayList<>();
 
