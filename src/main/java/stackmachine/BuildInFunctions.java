@@ -68,6 +68,9 @@ public enum BuildInFunctions {
             e.switchTech(tech);
         }),
         FORMAT_CODE((e,s)->e::formatCode),
+        GET_TECH((e, s)-> ()-> {
+                    s.push( e.getCurrentTech());
+        }),
         FULLSCREEN((e, s)->e::fullScreenMode);
 
         private final BiFunction<editor.EditorActions,Stack<Object>, Runnable> function;

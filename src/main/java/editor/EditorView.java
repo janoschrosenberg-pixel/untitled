@@ -12,7 +12,7 @@ public class EditorView extends ViewComponent {
 
     private List<Line> lines;
 
-    private final Stack<Menu> menuStack = new Stack<>();
+    private static final Stack<Menu> menuStack = new Stack<>();
 
     private static final Map<String, Menu> menuMap = new HashMap<>();
 
@@ -235,20 +235,20 @@ public void clearSelection() {
     }
 
     public void openMenu(String name) {
-        this.menuStack.push( this.menuMap.get(name));
+        menuStack.push( menuMap.get(name));
         repaint();
     }
 
     public void sendMenuCommand(String command) {
-        if(!this.menuStack.isEmpty()) {
-            this.menuStack.peek().fireMenuCommand(command);
+        if(!menuStack.isEmpty()) {
+            menuStack.peek().fireMenuCommand(command);
         }
         repaint();
     }
 
     public void closeMenu() {
-        if(!this.menuStack.isEmpty()) {
-            this.menuStack.pop();
+        if(!menuStack.isEmpty()) {
+            menuStack.pop();
         }
         repaint();
     }

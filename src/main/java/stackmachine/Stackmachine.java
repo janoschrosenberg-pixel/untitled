@@ -129,6 +129,43 @@ public class Stackmachine implements Inter{
                 writeFile(fileName.toString());
             }
 
+            case DUP -> {
+                stack.push(stack.peek());
+            }
+
+            case EQ -> {
+                Object v1 = stack.pop();
+                Object v2 = stack.pop();
+
+                if(v1.equals(v2)) {
+                    stack.push(BigDecimal.ONE);
+                }else{
+                    stack.push(BigDecimal.ZERO);
+                }
+            }
+
+            case CALL_IF -> {
+                var key = stackCommand.value().toString();
+                Object value = stack.pop();
+
+                if (!BigDecimal.ZERO.equals(value)) {
+                    if(runnableMap.containsKey(key)){
+                        runnableMap.get(key).run();
+                    }
+                }
+            }
+
+            case CALL_IF_NOT -> {
+                var key = stackCommand.value().toString();
+                Object value = stack.pop();
+
+                if (BigDecimal.ZERO.equals(value)) {
+                    if(runnableMap.containsKey(key)){
+                        runnableMap.get(key).run();
+                    }
+                }
+            }
+
             case EXIT -> {
                 this.editorActions.exit();
             }

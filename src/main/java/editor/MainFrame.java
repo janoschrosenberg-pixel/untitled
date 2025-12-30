@@ -9,7 +9,6 @@ import lsp.TypescriptLSP;
 import stackmachine.Inter;
 import stackmachine.StackUtils;
 import stackmachine.Stackmachine;
-import tokenizer.TokenUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -132,7 +131,7 @@ public class MainFrame extends JFrame implements EditorActions{
     }
 
     private void updateStatusView(){
-        setStatus(commandMode.showModus());
+        setStatus(tech.name()+" "+commandMode.showModus());
     }
 
     @Override
@@ -343,7 +342,7 @@ public class MainFrame extends JFrame implements EditorActions{
                throw new RuntimeException(e);
            }
        }
-
+        updateStatusView();
     }
 
     @Override
@@ -351,6 +350,10 @@ public class MainFrame extends JFrame implements EditorActions{
         current.formatCode();
     }
 
+    @Override
+    public String getCurrentTech() {
+        return tech.name();
+    }
 
     public MainFrame() throws IOException {
 

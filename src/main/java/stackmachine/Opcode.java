@@ -17,6 +17,9 @@ public enum Opcode {
     LOAD_FILE,
     SAVE_BUFFER,
     EXIT,
+    EQ,
+    CALL_IF,
+    CALL_IF_NOT,
     CALL;
 
     public static boolean matches(String s) {

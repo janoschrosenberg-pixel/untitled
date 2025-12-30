@@ -24,3 +24,5 @@ enter:LISTMENU:menu_select
 f:LISTMENU:filter_listmenu
 enter:insertLISTMENU:PREV_MODE
 t:normal:FORMAT_CODE
+q:normal:TOGGLE_TECH
+p:normal:files

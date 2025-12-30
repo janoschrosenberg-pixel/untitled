@@ -52,4 +52,5 @@ public interface EditorActions {
     void switchTech(String tech);
     void formatCode();
 
+    String getCurrentTech();
 }
