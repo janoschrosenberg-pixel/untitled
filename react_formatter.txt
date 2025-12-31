@@ -1,0 +1,4 @@
+npx
+prettier
+--parser
+typescript

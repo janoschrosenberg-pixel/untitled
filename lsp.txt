@@ -1,0 +1,4 @@
+npx
+--yes
+typescript-language-server
+--stdio

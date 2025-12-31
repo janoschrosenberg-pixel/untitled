@@ -1,9 +1,11 @@
 package formatter;
 
 import editor.Line;
+import stackmachine.StackUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CodeFormatter {
@@ -37,9 +39,11 @@ public class CodeFormatter {
 
     private static String tryFormatWithPrettier(String source) {
         try {
+            List<String> list = new ArrayList<>();
+            StackUtils.readLines("react_formatter.txt", list::add);
+            String[] array = list.toArray(new String[0]);
             ProcessBuilder pb = new ProcessBuilder(
-                    "npx", "prettier",
-                    "--parser", "typescript"
+                    array
             );
 
             pb.redirectErrorStream(true);

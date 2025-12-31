@@ -4,6 +4,7 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageServer;
+import stackmachine.StackUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -26,11 +28,11 @@ public class TypescriptLSP implements LSP{
     }
     @Override
     public void startServer() throws IOException, ExecutionException, InterruptedException {
+     List<String> list = new ArrayList<>();
+    StackUtils.readLines("lsp.txt", list::add);
+    String[] array = list.toArray(new String[0]);
     Process process = new ProcessBuilder(
-            "npx",
-            "--yes",
-            "typescript-language-server",
-            "--stdio"
+       array
     ).start();
 
     InputStream in = process.getInputStream();
