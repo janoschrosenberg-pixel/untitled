@@ -5,6 +5,7 @@ import editor.Tech;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -36,13 +37,20 @@ public class JavaFileScanner {
        }
     }
 
-
+    static List<String> ignoreList = List.of("target", "build", "out", "node_modules", ".gradle");
     static boolean isIgnored(Path p) {
         String s = p.toString();
-        return s.contains("/target/")
-            || s.contains("/build/")
-            || s.contains("/out/")
-            || s.contains("/node_modules/")
-            || s.contains("/.gradle/");
+
+        for(String part: ignoreList) {
+            if(ignoreString(s, part)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean ignoreString(String complete, String t) {
+       return complete.contains("\\"+t+"\\") || complete.contains("/"+t+"/");
     }
 }
