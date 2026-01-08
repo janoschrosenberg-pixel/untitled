@@ -5,10 +5,9 @@ import stackmachine.StackUtils;
 import tokenizer.TokenUtils;
 
 import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
+
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,32 +53,6 @@ public class Utils {
         List<tokenizer.Line> lines = TokenUtils.tokenizeIntoLines(code);
         return lines.stream().map(l -> new Line(l.lineText(), l.tokenList())).collect(Collectors.toList());
     }
-
-    public static List<String> readLines(Path file) throws IOException {
-        List<String> lines = new ArrayList<>();
-
-        try (BufferedReader reader = Files.newBufferedReader(file)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        }
-
-        return lines;
-    }
-
-    public static String getHexFromString(String str) { StringBuilder hex = new StringBuilder(); for (byte b : str.getBytes(StandardCharsets.UTF_8)) { hex.append(String.format("%02X", b)); } return hex.toString(); }
-
-    public static byte[] hexStringToByteArray(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i+1), 16));
-        }
-        return data;
-    }
-
 
 
     public static String mergeLines(List<Line> lines) {
@@ -153,24 +126,4 @@ public class Utils {
         return findIntervalWithIndex(ranges, x, MethodScannerUtil.MethodInfo::startLine);
     }
 
-    public static Color getComplementaryColorHSB(Color color) {
-        if (color == null) {
-            throw new IllegalArgumentException("Color darf nicht null sein");
-        }
-
-        // RGB in HSB umwandeln
-        float[] hsbVals = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
-
-        // Farbton um 180° drehen (0.5 im Bereich 0-1)
-        float newHue = (hsbVals[0] + 0.5f) % 1.0f;
-
-        // Neue Farbe aus HSB-Werten erstellen
-        return Color.getHSBColor(newHue, hsbVals[1], hsbVals[2]);
-    }
-
-    public static int stringWidth(String text, Font font) {
-        FontRenderContext frc =
-                new FontRenderContext(new AffineTransform(), true, true);
-        return (int) font.getStringBounds(text, frc).getWidth();
-    }
 }

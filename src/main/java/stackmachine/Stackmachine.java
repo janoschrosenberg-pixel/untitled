@@ -3,12 +3,9 @@ package stackmachine;
 
 
 import editor.EditorActions;
-import editor.Menu;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;

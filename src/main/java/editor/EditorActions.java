@@ -11,9 +11,9 @@ public interface EditorActions {
     void setStatus(String status);
 
     void moveCursorUp(int amount);
-    void moveCurserDown(int amount);
-    void moveCurserLeft(int amount);
-    void moveCurserRight(int amount);
+    void moveCursorDown(int amount);
+    void moveCursorLeft(int amount);
+    void moveCursorRight(int amount);
 
     void scrollUp(int amount);
     void scrollDown(int amount);
@@ -33,11 +33,10 @@ public interface EditorActions {
     void toPrevMethod();
 
     void openMenu(String name);
-    void sendMenuCommand(String command);
+
     void closeMenu();
 
-    void registerMenuFunction(String menuName, String name, String function);
-    void registerKeyListener(String mode, String function);
+
     void registerWorkspace(String path);
 
     void startLanguageServer();
@@ -53,4 +52,8 @@ public interface EditorActions {
     void formatCode();
 
     String getCurrentTech();
+
+    void putSelectionOnStack();
+
+    void selectCurrentLine();
 }

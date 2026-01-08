@@ -11,10 +11,6 @@ public record Token(Tokenizer type, int start, int end) {
         return type != WHITESPACE;
     }
 
-    public boolean equalsSelection(editor.Selection selection) {
-       return this.start() == selection.fromColumn() && this.end() == selection.toColumn();
-    }
-
     public static Token from (JavaToken javaToken){
         Tokenizer type = switch (javaToken.getKind()) {
             case 5 -> Tokenizer.COMMENT;

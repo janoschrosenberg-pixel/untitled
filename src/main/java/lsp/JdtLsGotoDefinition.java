@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.launch.LSPLauncher;
-import org.eclipse.lsp4j.services.LanguageClient;
+
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.io.*;
@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+
 
 public class JdtLsGotoDefinition  implements LSP{
 
@@ -79,7 +79,7 @@ public class JdtLsGotoDefinition  implements LSP{
         server.exit();
     }
 
-    public void openFile(String fileName) throws InterruptedException, IOException {
+    public void openFile(String fileName) throws  IOException {
 
         Path path = Paths.get(fileName);
 
@@ -135,21 +135,7 @@ public class JdtLsGotoDefinition  implements LSP{
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
 
-        JdtLsGotoDefinition jdtLsGotoDefinition = new JdtLsGotoDefinition();
-        jdtLsGotoDefinition.setWorkspace( "/home/oem/IdeaProjects/mein");
-        jdtLsGotoDefinition.startServer();
-        Thread.sleep(4000);
-
-        jdtLsGotoDefinition.openFile("/src/main/java/Tester.java");
-        Thread.sleep(2000);
-
-
-        jdtLsGotoDefinition.findDefinition(2, 27, "/src/main/java/Tester.java");
-
-        jdtLsGotoDefinition.shutdownServer();
-    }
 
 
     public String getWorkspace() {

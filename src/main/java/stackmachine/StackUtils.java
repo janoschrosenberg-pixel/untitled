@@ -31,32 +31,13 @@ public class StackUtils {
         return str.charAt(0) == '\'' && str.charAt(2)== '\'';
     }
 
-    public static String[] splitByWhitespace(String input) {
-        if (input == null || input.isEmpty()) {
-            return new String[0];
-        }
-        return input.trim().split("\\s+");
-    }
+
 
     public static String removeFirstAndLast(String s) {
         if (s == null || s.length() < 2) {
             return "";
         }
         return s.substring(1, s.length() - 1);
-    }
-    public static String joinAfterTwo(String[] arr) {
-        if (arr == null || arr.length <= 2) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 2; i < arr.length; i++) {
-            if (i > 2) sb.append(' ');
-            sb.append(arr[i]);
-        }
-
-        return sb.toString();
     }
 
     public static String[] removeFirstTwo(String[] arr) {

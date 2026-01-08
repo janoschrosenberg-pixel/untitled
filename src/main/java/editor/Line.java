@@ -1,20 +1,23 @@
 package editor;
 
+import com.googlecode.lanterna.SGR;
+
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.terminal.Terminal;
+
 import tokenizer.Token;
 import tokenizer.Tokenizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-
-
-
 public class Line {
 
-    public final StringBuilder text;
+    public  StringBuilder text;
     public List<Token> tokens;
 
     public void setTokens(List<Token> tokens){
@@ -108,36 +111,91 @@ public class Line {
         return tokens;
     }
 
-    public void drawText(Graphics g, int x, int y, Selection selection,int index) {
-        String line = toString();
-
-        if((tokens.isEmpty() && !this.text.isEmpty()) || (MainFrame.tech == Tech.REACT && MainFrame.editMode)) {
-            g.drawString(this.text.toString(), x, y);
-            return;
-        }
+    private Token findTokenAt(List<Token> tokens, int column) {
         for (Token t : tokens) {
-            String frag = line.substring(t.start(), t.end());
-            Color textColor = t.type().getTextColor();
+            if (column >= t.start() && column < t.end()) {
+                return t;
+            }
+        }
+        return null;
+    }
+    private void drawLineWithSyntaxHighlighting(
+            List<Token> tokens,
+            String currentLine,
+            int topLine,
+            int currentIndex,
+            Selection selection,
+            Terminal terminal
+    ) throws IOException {
 
-            int size = g.getFontMetrics().stringWidth(frag);
-            if(selection != null
-                    && selection.fromLine() == index
-                    && index == selection.toLine() && t.equalsSelection(selection)) {
+        int screenY = currentIndex - topLine;
+        if (screenY < 0) return;
 
-                Color background = t.type().getTextColor();
-                textColor = t.type().getBackgroundColor();
-                g.setColor(background);
-                g.fillRect(x, y - 13, size, EditorView.lineHeight);
+        for (int column = 0; column < currentLine.length(); column++) {
+
+            char ch = currentLine.charAt(column);
+
+            Token token = findTokenAt(tokens, column);
+
+            // -------- Default Farben --------
+            TextColor fg = TextColor.ANSI.WHITE;
+            TextColor bg;
+            SGR[] style = new SGR[0];
+
+            if (token != null) {
+                fg = token.type().getForeground();
             }
 
+            // -------- Selection überschreibt Background --------
+            if (isSelected(selection, currentIndex, column)) {
 
-            g.setColor(textColor);
-            g.drawString(frag, x, y);
+                    bg = TextColor.ANSI.BLUE;
 
-            x += size;
+                fg = TextColor.ANSI.WHITE;
+                style = new SGR[]{SGR.BOLD};
+            }else{
+                 bg = TextColor.ANSI.BLACK;
+            }
+
+            terminal.setForegroundColor(fg);
+            terminal.setBackgroundColor(bg);
+
+            for (SGR sgr : style) {
+                terminal.enableSGR(sgr);
+            }
+
+            terminal.setCursorPosition(column, screenY);
+            terminal.putCharacter(ch);
+
+            for (SGR sgr : style) {
+                terminal.disableSGR(sgr);
+            }
         }
     }
 
+    private boolean isSelected(Selection sel, int line, int column) {
+        if (sel == null) return false;
+
+        if (line < sel.fromLine() || line > sel.toLine()) return false;
+
+        if (sel.fromLine() == sel.toLine()) {
+            return column >= sel.fromColumn() && column < sel.toColumn();
+        }
+
+        if (line == sel.fromLine()) {
+            return column >= sel.fromColumn();
+        }
+
+        if (line == sel.toLine()) {
+            return column < sel.toColumn();
+        }
+
+        return true;
+    }
+
+    public void drawLineWithSyntaxHighlighting( Selection selection, Terminal terminal, int i, int  topLine) throws IOException {
+        drawLineWithSyntaxHighlighting(this.tokens, this.text.toString(), topLine, i, selection, terminal);
+    }
 
     public Result<Token> getCurrentTokenSkipWhitespace(int column) {
       return  Utils.findIntervalWithIndex(getTokenSkipWhitespace(), column, Token::start);

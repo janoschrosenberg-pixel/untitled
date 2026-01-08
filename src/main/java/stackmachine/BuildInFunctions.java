@@ -11,9 +11,9 @@ public enum BuildInFunctions {
         COMMAND_MODE((e, s)->e::switchToCommandMode),
         EDITOR_MODE((e, s)->e::switchToEditorMode),
         CURSOR_UP((e, s)->()->e.moveCursorUp(1)),
-        CURSOR_DOWN((e, s)->()->e.moveCurserDown(1)),
-        CURSOR_LEFT((e, s)->()->e.moveCurserLeft(1)),
-        CURSOR_RIGHT((e, s)->()->e.moveCurserRight(1)),
+        CURSOR_DOWN((e, s)->()->e.moveCursorDown(1)),
+        CURSOR_LEFT((e, s)->()->e.moveCursorLeft(1)),
+        CURSOR_RIGHT((e, s)->()->e.moveCursorRight(1)),
 
         CURSOR_NEXT_TOKEN((e,s)->e::toNextWord),
         CURSOR_PREV_TOKEN((e,s)->e::toPrevWord),
@@ -30,21 +30,8 @@ public enum BuildInFunctions {
                 e.switchToCustomMode();
             }
         ),
-    REGISTER_MENU_FUNCTION((e,s)->
-            ()-> {
-                String menuName = s.pop().toString();
-                String name = s.pop().toString();
-                String function = s.pop().toString();
-                e.registerMenuFunction(menuName, name, function);
-            }
-    ),
-    REGISTER_KEY_LISTENER((e,s)->
-            ()-> {
-                String mode = s.pop().toString();
-                String function = s.pop().toString();
-                e.registerKeyListener(mode, function);
-            }
-    ),
+
+
 
     REGISTER_WORKSPACE_AND_START_LANG_SERVER((e,s)->
             ()-> {
@@ -53,14 +40,8 @@ public enum BuildInFunctions {
                 e.startLanguageServer();
             }
     ),
-
-        SEND_MENU_COMMAND((e,s)->
-
-            ()-> {
-                String commandName = s.pop().toString();
-                e.sendMenuCommand(commandName);
-            }
-        ),
+    SELECT_LINE((e,s)->e::selectCurrentLine),
+    SELECTION_2_STACK((e,s)->e::putSelectionOnStack),
         JAVA_FILES_2_STACK((e,s) -> e::javaFiles2Stack),
         CLOSE_MENU((e,s)-> e::closeMenu),
         SWITCH_TECH((e, s) -> ()-> {

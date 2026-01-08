@@ -13,9 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class TokenUtils {
-    public static boolean isOnlyWhitespace(String s) {
-        return s != null && s.chars().allMatch(Character::isWhitespace);
-    }
+
 
     private static List<Integer> computeLineStarts(String source) {
         List<Integer> starts = new ArrayList<>();

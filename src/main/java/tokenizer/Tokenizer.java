@@ -5,51 +5,58 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
-import editor.ColorUtils;
+import com.googlecode.lanterna.TextColor;
 import editor.MainFrame;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.regex.Pattern.compile;
-
-
 public enum Tokenizer {
-    ROUND_BRACKET(new Color(255, 68, 68)),
-    MODIFIER(new Color(255, 0, 0)),
-    STATIC(new Color(255, 0, 255)),
-    KEYWORD(new Color(255, 255, 0)),
-    IDENTIFIER(new Color(0, 220, 60)),
-    NUMBER(new Color(200, 0, 255)),
-    BRACKET(new Color(0, 255, 255)),
-    STRING(new Color(0, 180, 255)),
-    CHAR(new Color(68, 85, 255)),
-    COMMENT(new Color(140, 0, 255)),
-    OPERATOR(
-            new Color(0, 255, 150)
-    ),
-    WHITESPACE(new Color(255, 0, 150)),
-    SYMBOL(new Color(255, 120, 180)),
-    UNKNOWN(new Color(255, 180, 50)),
-    COMPARE(new Color(80, 255, 200)),
-    LOGICAL(new Color(120, 255, 120)),
-    COLON(new Color(255, 160, 0)),
-    ARITHMETIC(new Color(180, 120, 255));
 
-    private Color textColor;
-    private Color backgroundColor;
+    ROUND_BRACKET(color(196)),   // bright red
+    MODIFIER(color(203)),        // light red
+    STATIC(color(201)),          // bright magenta
+    KEYWORD(color(226)),         // bright yellow
+    IDENTIFIER(color(82)),       // vivid green
+    NUMBER(color(141)),          // bright purple
+    BRACKET(color(51)),          // bright cyan
+    STRING(color(45)),           // light cyan
+    CHAR(color(75)),             // light blue
+    COMMENT(color(244)),         // neutral gray (absichtlich zurückhaltend)
+    OPERATOR(color(48)),         // teal
+    WHITESPACE(color(250)),      // near white (für Debug / sichtbar)
+    SYMBOL(color(210)),          // soft pink
+    UNKNOWN(color(214)),         // orange
+    COMPARE(color(39)),          // blue-cyan
+    LOGICAL(color(118)),         // bright green
+    COLON(color(208)),           // orange
+    ARITHMETIC(color(147));      // lavender
 
-    Tokenizer(Color textColor) {
-        this.textColor = textColor;
-        this.backgroundColor = ColorUtils.getHarmonicContrastColor(textColor);
+    /** Einheitlicher dunkler Hintergrund */
+    private static final TextColor BACKGROUND = new TextColor.Indexed(16);
+
+    private final TextColor foreground;
+
+
+    Tokenizer(TextColor foreground) {
+        this.foreground = foreground;
     }
+
+    // ---------- Farb-Helfer ----------
+
+    private static TextColor color(int index) {
+        return new TextColor.Indexed(index);
+    }
+
+    // ---------------- Tokenizer-Logik unverändert ----------------
+
     static JavaParser parser = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
+            new ParserConfiguration()
+                    .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
     );
 
-    private static List<Token> tokenizeJava(String code){
+    private static List<Token> tokenizeJava(String code) {
         List<Token> tokens = new ArrayList<>();
 
         ParseResult<CompilationUnit> result = parser.parse(code);
@@ -59,39 +66,32 @@ public enum Tokenizer {
             TokenRange tokenRange = cu.getTokenRange().get();
 
             tokenRange.forEach(token -> {
-                if(token.getKind() != 0){
-
+                if (token.getKind() != 0) {
                     var newToken = Token.from(token);
 
-                    if(!tokens.isEmpty() && tokens.getLast().type() == newToken.type() &&  tokens.getLast().type() == Tokenizer.WHITESPACE) {
+                    if (!tokens.isEmpty()
+                            && tokens.getLast().type() == newToken.type()
+                            && tokens.getLast().type() == Tokenizer.WHITESPACE) {
+
                         var lastStart = tokens.getLast().start();
                         var newEnd = newToken.end();
                         var newType = newToken.type();
                         tokens.removeLast();
-
                         tokens.add(new Token(newType, lastStart, newEnd));
-
-                    }else{
+                    } else {
                         tokens.add(newToken);
                     }
                 }
-
             });
         }
-
         return tokens;
     }
-    public static List<Token> tokenize(String code) {
-        switch(MainFrame.tech) {
-            case JAVA -> {
-                return tokenizeJava(code);
-            }
-            case REACT -> {
-              return new ArrayList<>();
-            }
 
-        }
-       throw new IllegalStateException("kein tech");
+    public static List<Token> tokenize(String code) {
+        return switch (MainFrame.tech) {
+            case JAVA -> tokenizeJava(code);
+            case REACT -> tokenizeReact(code);
+        };
     }
 
     private static List<Token> tokenizeReact(String code) {
@@ -102,13 +102,10 @@ public enum Tokenizer {
         }
     }
 
-    public Color getTextColor() {
-        return this.textColor;
-    }
+    // ---------------- Lanterna-Getter ----------------
 
-    public Color getBackgroundColor(){
-        return this.backgroundColor;
+    public TextColor getForeground() {
+        return foreground;
     }
-
 
 }

@@ -1,6 +1,6 @@
 package editor;
 
-import stackmachine.Inter;
+
 
 import java.util.*;
 
@@ -9,18 +9,10 @@ public class CustomCommandMode implements EditorCommands{
     private final HashMap<String, Map<String, Runnable>> bindingMap = new HashMap<>();
     private final Stack<String> mode = new Stack<>();
 
-    private final TempBuffer tempBuffer = TempBuffer.INSTANCE;
 
-    private Map<String, List<String>> listener = new HashMap<>();
-
-    private Inter inter;
-    CustomCommandMode(){
+    public CustomCommandMode(){
         mode.push("normal");
 
-    }
-
-    public void setStackMachine(Inter inter){
-        this.inter = inter;
     }
 
     public void bind(String key, String mode, Runnable command) {
@@ -44,36 +36,11 @@ public class CustomCommandMode implements EditorCommands{
 
     @Override
     public void appendChar(char sign) {
-
-        String mode = this.mode.peek();
-        if(mode.startsWith("insert")) {
-            this.tempBuffer.add(sign);
-            handleListeners(mode);
-            return;
-        }
-
         if(sign == ' ') {
             typeCommand("space");
         }else{
             typeCommand(sign+"");
         }
-
-
-    }
-
-    private void handleListeners(String mode) {
-        if(listener.containsKey(mode)) {
-            List<String> commands = listener.get(mode);
-            commands.forEach( this.inter::runCommand);
-        }
-    }
-
-    public void registerListener(String mode, String command) {
-        if(!this.listener.containsKey(mode)) {
-            this.listener.put(mode, new ArrayList<>());
-        }
-
-        this.listener.get(mode).add(command);
     }
 
     private void typeCommand(String sign) {
@@ -85,12 +52,6 @@ public class CustomCommandMode implements EditorCommands{
 
     @Override
     public void delChar() {
-        String mode = this.mode.peek();
-        if(mode.startsWith("insert")) {
-            this.tempBuffer.del();
-            handleListeners(mode);
-            return;
-        }
         typeCommand("del");
     }
 
