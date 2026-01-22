@@ -1,0 +1,93 @@
+# Keybinding Configuration
+# Format: keys:MODE:method oder keys:MODE:{method1, method2}
+# MODE kann beliebig sein (dynamisch) - wird automatisch erstellt
+# Use ctrl_ prefix for control keys (e.g., ctrl_w)
+# Use special names: esc, enter, backspace, delete, left, right, up, down
+
+# Dynamische Methoden:
+#   pushMode_MODENAME - pusht MODENAME auf den Stack
+#   setMode_MODENAME  - setzt MODENAME als einzigen Modus (Stack leer + push)
+#   popMode           - entfernt obersten Modus vom Stack
+#
+# Forth-Words aus init.forth können als Methoden verwendet werden!
+# Beispiel: I:NORMAL:I  (ruft das Forth-Word "I" auf: line-start insert-mode)
+
+# === NORMAL MODE ===
+h:NORMAL:moveCursorLeft
+l:NORMAL:moveCursorRight
+j:NORMAL:moveCursorDown
+k:NORMAL:moveCursorUp
+left:NORMAL:moveCursorLeft
+right:NORMAL:moveCursorRight
+down:NORMAL:moveCursorDown
+up:NORMAL:moveCursorUp
+i:NORMAL:setMode_INSERT
+a:NORMAL:appendAfterCursor
+o:NORMAL:openLineBelow
+O:NORMAL:openLineAbove
+x:NORMAL:deleteForward
+g:NORMAL:gotoDefinition
+n:NORMAL:popJumpPosition
+p:NORMAL:openFilePicker
+::NORMAL:{setMode_COMMAND, clearCommandBuffer}
+v:NORMAL:{pushMode_VISUAL, setVisualStart}
+ctrl_w:NORMAL:nextWorkspace
+ctrl_c:NORMAL:quit
+
+# Forth-Words als Keybindings (aus init.forth)
+I:NORMAL:I
+A:NORMAL:A
+
+# === INSERT MODE ===
+esc:INSERT:setMode_NORMAL
+left:INSERT:moveCursorLeft
+right:INSERT:moveCursorRight
+up:INSERT:moveCursorUp
+down:INSERT:moveCursorDown
+backspace:INSERT:deleteChar
+delete:INSERT:deleteForward
+enter:INSERT:insertNewline
+ctrl_c:INSERT:quit
+
+# === COMMAND MODE (Forth REPL) ===
+# Der Command-Mode ist jetzt eine Forth-REPL!
+# Beispiele:
+#   :w        - Datei speichern
+#   :q        - Beenden
+#   :wq       - Speichern und Beenden
+#   :2 3 + .  - Rechner: zeigt 5
+#   :help     - Hilfe anzeigen
+esc:COMMAND:setMode_NORMAL
+enter:COMMAND:executeCommand
+backspace:COMMAND:commandBackspace
+ctrl_c:COMMAND:quit
+
+# === FILEPICKER MODE ===
+esc:FILEPICKER:closeFilePicker
+enter:FILEPICKER:selectFileFromPicker
+j:FILEPICKER:filePickerDown
+k:FILEPICKER:filePickerUp
+down:FILEPICKER:filePickerDown
+up:FILEPICKER:filePickerUp
+backspace:FILEPICKER:filePickerBackspace
+ctrl_w:FILEPICKER:nextWorkspace
+ctrl_c:FILEPICKER:quit
+
+# === VISUAL MODE (Stack-basiert) ===
+esc:VISUAL:{popMode, clearVisualStart}
+h:VISUAL:moveCursorLeft
+l:VISUAL:moveCursorRight
+j:VISUAL:moveCursorDown
+k:VISUAL:moveCursorUp
+left:VISUAL:moveCursorLeft
+right:VISUAL:moveCursorRight
+down:VISUAL:moveCursorDown
+up:VISUAL:moveCursorUp
+v:VISUAL:{popMode, clearVisualStart}
+ctrl_c:VISUAL:quit
+
+# === Beispiel für eigene Modi ===
+# Man kann beliebige Modi definieren, z.B.:
+# g:NORMAL:pushMode_GOTO
+# g:GOTO:gotoDefinition
+# esc:GOTO:popMode

@@ -16,7 +16,8 @@ public interface EditorActions {
     void moveCursorRight(int amount);
 
     void scrollUp(int amount);
-    void scrollDown(int amount);
+    void
+    scrollDown(int amount);
 
     void bind(String key,String mode, Runnable command);
 

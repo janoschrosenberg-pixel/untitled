@@ -36,6 +36,7 @@ public class MiniEditor implements EditorActions {
     private Map<Tech, LSP> lsps = new HashMap<>();
     private Inter inter;
     private boolean programRunning = true;
+    private boolean updateAll = true;
 
     private final BoundedStack<Buffer> bufferHistory = new BoundedStack<>(100);
 
@@ -99,7 +100,7 @@ public class MiniEditor implements EditorActions {
 
         while (programRunning) {
             var buffer = CURRENT_BUFFER.getCurentBuffer();
-            terminal.clearScreen();
+
             int max = CURRENT_BUFFER.getMaxLines() + buffer.getTopLine();
             if(max>buffer.getLineSize()) {
                 max = buffer.getLineSize();
@@ -111,9 +112,25 @@ public class MiniEditor implements EditorActions {
             terminal.setCursorVisible(selection == null);
             terminal.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
             terminal.setBackgroundColor(TextColor.ANSI.BLACK);
-            for (int i = buffer.getTopLine(); i < max; i++) {
-                buffer.getLines().get(i).drawLineWithSyntaxHighlighting(selection, terminal, i, buffer.getTopLine());
+
+
+            if(updateAll) {
+                terminal.clearScreen();
+                for (int i = buffer.getTopLine(); i < max; i++) {
+                    buffer.getLines().get(i).drawLineWithSyntaxHighlighting(selection, terminal, i, buffer.getTopLine());
+                    updateAll = false;
+                }
+            }else{
+                if(selection!= null) {
+                    for (int i = buffer.getTopLine()+selection.fromLine(); i < selection.toLine()+1; i++) {
+                        buffer.getLines().get(i).drawLineWithSyntaxHighlighting(selection, terminal, i, buffer.getTopLine());
+                    }
+                }else{
+                    int i=buffer.getCursorRow();
+                    buffer.getLines().get(i).drawLineWithSyntaxHighlighting(null, terminal, i, buffer.getTopLine());
+                }
             }
+
             updateStatusBar(terminal);
 
             terminal.setCursorPosition(new TerminalPosition(buffer.getCursorCol(),buffer.getCursorRow()-buffer.getTopLine()));
@@ -202,6 +219,7 @@ public class MiniEditor implements EditorActions {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        updateAll = true;
     }
 
     @Override

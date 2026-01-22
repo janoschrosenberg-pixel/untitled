@@ -1,1 +1,4 @@
-/home/oem/vite/packages/create-vite/template-react-ts
+# Workspace-Verzeichnisse (eines pro Zeile)
+# Zeilen die mit # beginnen werden ignoriert
+
+/home/oem/rust/vimclone/test-react-project
